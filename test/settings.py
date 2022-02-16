@@ -1,7 +1,6 @@
 import unittest
-from settings.settings import PrinterSettings
+from utils.settings import PrinterSettings
 import json
-import os
 
 test_dict_add = {
   "Profile1": {
@@ -44,6 +43,7 @@ test_dict_del = {
   }
 }
 
+
 class MyTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -60,8 +60,8 @@ class MyTestCase(unittest.TestCase):
     def test_profile_add(self):
         self.kek._change_file("test_data/test_settings_add.json")
         self.kek.add_profile("Profile4", {"port": "COM4",
-                                          "baudrate": 250000,
-                                          "XON/XOFF": False
+                                            "baudrate": 250000,
+                                            "XON/XOFF": False
                                           })
         new_dict: dict
         with open("test_data/test_settings_add.json", "r") as read_file:

@@ -49,7 +49,10 @@ class G_Command_without_line():
         return self.command
 
 
-
-
+def decommenter(line: str):
+    if line.find(';') == -1:
+        return line
+    else:
+        return line[:line.index(';')]
 
 

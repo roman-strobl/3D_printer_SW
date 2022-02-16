@@ -1,21 +1,34 @@
+import datetime
+
 import serial
 import re
 import time
-import json
 import threading
 import queue
-import logging
+import paho.mqtt.client as paho
 
-from printer.messages import G_Command_with_line, G_Command_without_line
+from printer.messages import G_Command_with_line, decommenter
 
 regex_temp = re.compile(
     r"(?P<tool>B|C|T(?P<toolnum>\d*)):\s*(?P<actual>[-+]?\d*\.?\d+)\s*\/?\s*(?P<target>[-+]?\d*\.?\d+)?")
 regex_position = re.compile(
-    r"(?P<axis>X|Y|Z):\s*(?P<value>[-+]?\d*\.?\d+)?")
+    r"(?P<axis>X|Y|Z|E):\s*(?P<value>[-+]?\d*\.?\d+)?")
 regex_Firmware = re.compile(
     r"([A-Z][A-Z0-9_]*):")
 regex_cap = re.compile(
     r"(?P<name>\w*):(?P<value>[01])")
+
+
+def _init_mqtt() -> paho.Client:
+    client = paho.Client("printer")
+
+    try:
+        client.connect("192.168.0.207", 1883)
+    except Exception as e:
+        print(e)
+
+    return client
+
 
 class Printer(object):
     """
@@ -58,17 +71,16 @@ class Printer(object):
 
         self._pause = False
 
-        self._command_to_send = queue.Queue(100)
+        self._command_to_send = queue.Queue()
 
-        self._sending_active = True
-        self.sending_thread = threading.Thread(target=self._sender, name="comm._sender")
-        self.sending_thread.daemon = False
+        self._sending_active = False
+        self._monitoring_active = False
+        self.sending_thread = None
+        self.monitoring_thread = None
 
         self.condition = threading.Condition()
 
-        self._monitoring_active = True
-        self.monitoring_thread = threading.Thread(target=self._monitoring, name="comm._monitor")
-        self.monitoring_thread.daemon = False
+        self.client = _init_mqtt()
 
         self._comm = serial.Serial(write_timeout=1, timeout=0.5)
         self._comm.setPort(kwargs.get("port"))
@@ -76,6 +88,17 @@ class Printer(object):
 
         self._autoreport_position = False
         self._autoreport_temp = False
+
+    def _start_threads(self) -> None:
+
+        self._sending_active = True
+        self._monitoring_active = True
+
+        self.sending_thread = threading.Thread(target=self._sender, name="comm._sender")
+        self.monitoring_thread = threading.Thread(target=self._monitoring, name="comm._monitor")
+
+        self.sending_thread.daemon = False
+        self.monitoring_thread.daemon = False
 
         self.monitoring_thread.start()
         self.sending_thread.start()
@@ -86,14 +109,23 @@ class Printer(object):
             time.sleep(1)
         except Exception as ex:
             return str(ex)
+
+        self._start_threads()
+
         time.sleep(2)
 
         self._command_to_send.put("M110")
         self._command_to_send.put("M115")
 
-        return "connected"
+        print("connected")
 
     def disconnect(self) -> str:
+
+        self._sending_active = False
+        self._monitoring_active = False
+
+        self.sending_thread = None
+        self.monitoring_thread = None
 
         self._comm.close()
 
@@ -124,7 +156,7 @@ class Printer(object):
             elif message == "":
                 time.sleep(0.001)
                 continue
-            print(message)
+            #print(message)
 
             if self._M115_state:
                 if not message.startswith("Cap") and not message.startswith("cap"):
@@ -145,11 +177,20 @@ class Printer(object):
             if message.startswith("ok"):
                 with self.condition:
                     self.condition.notifyAll()
-                print("Ready")
                 continue
 
-            if "T:" in message or "T0:" in message or "B:" in message or "C:" in message:
+            if message.startswith("X:") or " Y:" in message or " Z" in message or " E:" in message:
 
+                string = message.split("Count")
+                data = {}
+                for match in re.finditer(regex_position, string[0]):
+
+                    data[match["axis"]] = match["value"]
+
+                self.client.publish("printer/position", str(data))
+
+            if " T:" in message or " T0:" in message or " B:" in message or " C:" in message:
+                print(message)
                 result = {}
 
                 for match in re.finditer(regex_temp, message):
@@ -180,6 +221,16 @@ class Printer(object):
 
                 if "C" in result:
                     self._chamberTemp, self._targetChamberTemp = result["C"]
+
+                data = {"time": datetime.datetime.now().ctime(),
+                        "tools": {
+                            "T0": self._temp
+                        },
+                        "bed": self._bedTemp,
+                        "chamber": self._chamberTemp,
+                        }
+
+                self.client.publish("printer/temperature", str(data))
 
             if message.startswith("FIRMWARE_NAME:"):
                 self._M115_state = True
@@ -224,7 +275,7 @@ class Printer(object):
                     self._command_to_send.task_done()
             with self.condition:
                 self.condition.wait()
-        return "konec"
+        return "konec senderu"
 
     pass
 
@@ -260,7 +311,27 @@ class Printer(object):
     def is_connect(self):
         return self._comm.isOpen()
 
+    def print_from_file(self, file: str):
+
+        try:
+            f = open(file)
+            print(f'soubor {file} se podařilo otevřít')
+        except Exception as ex:
+            print(ex)
+
+        for line in f:
+            f_line = line.strip()  # vymazání zbytečných mezer
+            f_line = decommenter(f_line)
+            if f_line.isspace() is False and len(f_line) > 0:
+                self._command_to_send.put(f_line)
+                print(f"příkaz {f_line} byl přidát do fronty")
+
+        f.close()
+
+
 if __name__ == '__main__':
     # printer = Printer(port='/dev/ttyACM0', baudrate=250000)
     printer = Printer(port='COM6', baudrate=250000)
     printer.connect()
+    #time.sleep(2)
+    #printer.print_from_file("kostka.gcode")
