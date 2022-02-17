@@ -318,6 +318,7 @@ class Printer(object):
             print(f'soubor {file} se podařilo otevřít')
         except Exception as ex:
             print(ex)
+            pass
 
         for line in f:
             f_line = line.strip()  # vymazání zbytečných mezer
