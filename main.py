@@ -1,5 +1,7 @@
+from CLI import main_cli
+
 def main():
-    pass
+    main_cli()
 
 
 if __name__ == '__main__':
