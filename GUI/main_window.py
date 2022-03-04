@@ -1,4 +1,4 @@
-import sys
+'''import sys
 import random
 from PySide6 import QtCore, QtWidgets, QtGui
 
@@ -31,5 +31,18 @@ if __name__ == "__main__":
     widget.resize(800, 480)
     widget.show()
 
-    sys.exit(app.exec())
+    sys.exit(app.exec())'''
 
+import sys
+
+from PySide6 import QtWidgets
+from PySide6.QtUiTools import QUiLoader
+
+loader = QUiLoader()
+
+app = QtWidgets.QApplication(sys.argv)
+
+window = loader.load("mainwindow.ui", None)
+
+window.show()
+app.exec()
