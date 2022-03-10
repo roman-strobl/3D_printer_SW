@@ -1,0 +1,13 @@
+/* This file is generated and only relevant for integrating the project into a Qt 6 and cmake based
+C++ project. */
+
+import QtQuick
+import content
+App {
+}
+
+/*##^##
+Designer {
+    D{i:0;autoSize:true;height:480;width:640}
+}
+##^##*/
