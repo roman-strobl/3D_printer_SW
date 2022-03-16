@@ -8,6 +8,8 @@ from PySide6.QtCore import QObject, Slot, Signal, QTimer
 
 import serial.tools.list_ports
 
+from printer.communicatio import Printer
+from utils.Event import subscribe
 
 class MainWindow(QObject):
 
@@ -21,6 +23,8 @@ class MainWindow(QObject):
         self.timer = QTimer()
         self.timer.timeout.connect(lambda: self.updatePort())
         self.timer.start(2000)
+
+        subscribe("temperature_update", self.update_temperature)
 
     @Slot(str)
     def portList(self, text):
@@ -61,6 +65,11 @@ class MainWindow(QObject):
             self.getPort.emit(f_ports)
             self.oldPort = f_ports
 
+    def update_temperature(self, data):
+        print(data)
+
+
+
 
 if __name__ == "__main__":
     app = QGuiApplication(sys.argv)
@@ -73,4 +82,8 @@ if __name__ == "__main__":
     engine.load(os.fspath(Path(__file__).resolve().parent / "content/App.qml"))
     if not engine.rootObjects():
         sys.exit(-1)
+
+    printer = Printer(port='COM5', baudrate=250000)
+    printer.connect()
+
     sys.exit(app.exec())

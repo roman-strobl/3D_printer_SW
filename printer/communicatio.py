@@ -9,6 +9,8 @@ import paho.mqtt.client as paho
 
 from printer.messages import G_Command_with_line, decommenter
 
+from utils.Event import post_event
+
 regex_temp = re.compile(
     r"(?P<tool>B|C|T(?P<toolnum>\d*)):\s*(?P<actual>[-+]?\d*\.?\d+)\s*\/?\s*(?P<target>[-+]?\d*\.?\d+)?")
 regex_position = re.compile(
@@ -231,6 +233,7 @@ class Printer(object):
                         }
 
                 self.client.publish("printer/temperature", str(data))
+                post_event("temperature_update", data)
 
             if message.startswith("FIRMWARE_NAME:"):
                 self._M115_state = True
@@ -332,7 +335,7 @@ class Printer(object):
 
 if __name__ == '__main__':
     # printer = Printer(port='/dev/ttyACM0', baudrate=250000)
-    printer = Printer(port='COM6', baudrate=250000)
+    printer = Printer(port='COM5', baudrate=250000)
     printer.connect()
     #time.sleep(2)
     #printer.print_from_file("kostka.gcode")
