@@ -4,14 +4,14 @@ import QtQuick.Controls
 
 Window {
     id: mainWindow
-    width: 800
-    height: 480
+    width: 1024
+    height: 600
     visible: true
     color: "#2c313c"
     minimumHeight: 480
-    maximumHeight: 480
+    maximumHeight: 600
     minimumWidth: 800
-    maximumWidth: 800
+    maximumWidth: 1024
     title: "GUI_Printer"
 
     flags: Qt.Window | Qt.FramelessWindowHint

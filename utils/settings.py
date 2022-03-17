@@ -1,5 +1,4 @@
 import json
-import os
 
 
 class PrinterSettings:
@@ -44,3 +43,36 @@ class PrinterSettings:
         # print(self.data)
         with open(self.file, "w") as write_file:
             json.dump(self.data, write_file, indent=4)
+
+
+default_setting = {
+        "serial": {
+            "port": "COM1",
+            "baudrate": 250000
+        },
+        "printer": {
+            "num_of_extruder": 1,
+            "extruder": {
+                "first": {
+                    "max_temp": 250
+                }
+            },
+            "bed": {
+                "state": True,
+                "max_temp": 60,
+            },
+            "chamber": {
+                "state": False,
+                "max_temp": 50,
+            }
+        },
+        "MQTT": {
+            "IP_address": "127.0.0.1",
+            "port": 1883
+        },
+        "MES": {
+            "IP_address": "127.0.0.1",
+            "port": 80
+        },
+}
+

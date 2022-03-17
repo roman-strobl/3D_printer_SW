@@ -5,7 +5,7 @@ import re
 import time
 import threading
 import queue
-import paho.mqtt.client as paho
+
 
 from printer.messages import G_Command_with_line, decommenter
 
@@ -21,15 +21,7 @@ regex_cap = re.compile(
     r"(?P<name>\w*):(?P<value>[01])")
 
 
-def _init_mqtt() -> paho.Client:
-    client = paho.Client("printer")
 
-    try:
-        client.connect("192.168.0.207", 1883)
-    except Exception as e:
-        print(e)
-
-    return client
 
 
 class Printer(object):
@@ -82,7 +74,7 @@ class Printer(object):
 
         self.condition = threading.Condition()
 
-        self.client = _init_mqtt()
+
 
         self._comm = serial.Serial(write_timeout=1, timeout=0.5)
         self._comm.setPort(kwargs.get("port"))
