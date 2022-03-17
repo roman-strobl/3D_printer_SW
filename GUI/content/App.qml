@@ -57,6 +57,7 @@ Window {
 
         property var port_list: []
         property var baudrate_list: []
+        property
 
         function onGetPort(port_list){
             back.port_list = port_list

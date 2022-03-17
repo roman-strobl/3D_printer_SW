@@ -1,5 +1,5 @@
 import json
-
+import os
 
 class PrinterSettings:
     """Class that provides settings for printer Class from json file."""
@@ -75,4 +75,39 @@ default_setting = {
             "port": 80
         },
 }
+
+__location__ = os.path.realpath(
+    os.path.join(os.getcwd(), os.path.dirname(__file__)))
+
+
+class Settings(object):
+
+    setting = {}
+
+    def __init__(self, basedir: str = None):
+
+        if basedir is None:
+            try:
+                with open("setting.json", "r+") as file:
+                    self.setting = json.load(file)
+            except IOError:
+                with open("setting.json", "w") as file:
+                    self.setting = default_setting
+                    json.dump(self.setting, file, indent=4)
+        else:
+            try:
+                with open(basedir, "r+") as file:
+                    self.setting = json.load(file)
+            except IOError:
+                print("Soubor neexistuje")
+                with open(basedir, "w") as file:
+                    self.setting = default_setting
+                    json.dump(self.setting, file, indent=4)
+
+
+
+
+if __name__ == '__main__':
+
+    setting = Settings()
 

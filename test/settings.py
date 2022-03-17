@@ -1,6 +1,7 @@
 import unittest
 from utils.settings import PrinterSettings
 import json
+import os
 
 test_dict_add = {
   "Profile1": {
@@ -78,4 +79,6 @@ class MyTestCase(unittest.TestCase):
 
 
 if __name__ == '__main__':
+
     unittest.main()
+
