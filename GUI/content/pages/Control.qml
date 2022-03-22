@@ -15,16 +15,20 @@ Item {
 
         CustomButton {
             id: customButton
-            x: 0
-            y: 430
+            anchors.left: parent.left
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 4
+            anchors.leftMargin: 4
         }
 
         SwipeView {
             id: settingsView
-            y: 34
-            height: 390
             anchors.left: parent.left
             anchors.right: parent.right
+            anchors.top: pageIndicator.bottom
+            anchors.bottom: customButton.top
+            anchors.topMargin: 10
+            anchors.bottomMargin: 10
             anchors.rightMargin: 0
             anchors.leftMargin: 0
             currentIndex: 0
@@ -35,78 +39,180 @@ Item {
                 Button {
                     id: button
                     x: 158
-                    y: 68
+                    y: 174
+                    width: 70
+                    height: 60
                     text: qsTr("Y+")
+                    onClicked: {
+                    backend.send_GCode("Y",range.value)
+                    }
                 }
 
                 Button {
                     id: button1
-                    x: 76
-                    y: 144
+                    x: 70
+                    y: 261
+                    width: 70
+                    height: 60
                     text: qsTr("X-")
+                    onClicked: {
+                    backend.send_GCode("X",-range.value)
+                    }
                 }
 
                 Button {
                     id: button2
                     x: 158
-                    y: 231
+                    y: 358
+                    width: 70
+                    height: 60
                     text: qsTr("Y-")
+                    onClicked: {
+                    backend.send_GCode("Y",-range.value)
+                    }
                 }
 
                 Button {
                     id: button3
-                    x: 242
-                    y: 144
+                    x: 246
+                    y: 261
+                    width: 70
+                    height: 60
                     text: qsTr("X+")
+                    clip: false
+                    transformOrigin: Item.Center
+                    onClicked: {
+                    backend.send_GCode("X",range.value)
+                    }
                 }
 
                 Button {
                     id: button4
-                    x: 365
-                    y: 77
+                    x: 345
+                    y: 174
+                    width: 70
+                    height: 60
                     text: qsTr("Z+")
+                    onClicked: {
+                    backend.send_GCode("Z",range.value)
+                    }
                 }
 
                 Button {
                     id: button5
-                    x: 365
-                    y: 231
+                    x: 345
+                    y: 358
+                    width: 70
+                    height: 60
                     text: qsTr("Z-")
+                    onClicked: {
+                    backend.send_GCode("Z",-range.value)
+                    }
                 }
 
                 Button {
                     id: button6
-                    x: 531
-                    y: 77
+                    x: 477
+                    y: 174
+                    width: 70
+                    height: 60
                     text: qsTr("E+")
                 }
 
                 Button {
                     id: button7
-                    x: 531
-                    y: 231
+                    x: 477
+                    y: 358
+                    width: 70
+                    height: 60
                     text: qsTr("E-")
                 }
 
                 Label {
                     id: label
-                    x: 13
-                    y: 8
-                    text: qsTr("X: ")
+                    text: qsTr("X: "+ back.positions[0])
+                    anchors.left: parent.left
+                    anchors.top: parent.top
+                    anchors.topMargin: 10
+                    anchors.leftMargin: 10
                 }
 
                 Label {
                     id: label1
-                    x: 13
-                    y: 33
-                    text: qsTr("Y:")
+                    text: qsTr("Y: "+ back.positions[1])
+                    anchors.left: parent.left
+                    anchors.top: label.bottom
+                    anchors.leftMargin: 10
+                    anchors.topMargin: 10
                 }
 
                 Label {
                     id: label2
-                    x: 13
-                    y: 58
-                    text: qsTr("Z:")
+                    text: qsTr("Z: "+ back.positions[2])
+                    anchors.left: parent.left
+                    anchors.top: label1.bottom
+                    anchors.topMargin: 10
+                    anchors.leftMargin: 10
+                }
+
+                Button {
+                    id: range
+                    x: 902
+                    y: 433
+                    width: 70
+                    height: 60
+
+                    property var range_list: [1,5,10]
+                    property int range_current: 0
+
+                    property int value: range.range_list[range.range_current]
+
+                    text: qsTr(range.value+" mm")
+
+                    onClicked: {
+                        range.range_current = range.range_current + 1
+                        if (range.range_current >= 3){
+                            range.range_current = 0
+                        }
+
+                    }
+
+                }
+
+                Button {
+                    id: home
+                    x: 692
+                    y: 174
+                    width: 70
+                    height: 48
+                    text: qsTr("Home")
+                }
+
+                Button {
+                    id: home_x
+                    x: 692
+                    y: 239
+                    width: 70
+                    height: 48
+                    text: qsTr("Home X")
+                }
+
+                Button {
+                    id: home_y
+                    x: 692
+                    y: 306
+                    width: 70
+                    height: 48
+                    text: qsTr("Home Y")
+                }
+
+                Button {
+                    id: home_z
+                    x: 692
+                    y: 370
+                    width: 70
+                    height: 48
+                    text: qsTr("Home Z")
                 }
 
 
@@ -140,19 +246,24 @@ Item {
                     id: chamber
                     x: 96
                     y: 285
-                    value: 0.5
+                    width: 200
+                    height: 70
+                    value: back.chamber_temperature[1]
                     from: 0
-                    to:60
+                    to: back.chamber_max_temperature
                     stepSize: 1
+
                 }
 
                 Slider {
                     id: bed
                     x: 96
                     y: 182
-                    value: 0.5
+                    width: 200
+                    height: 70
+                    value: back.bed_temperature[1]
                     from: 0
-                    to: 100
+                    to: back.bed_max_temperature
                     stepSize: 1
                 }
 
@@ -160,9 +271,11 @@ Item {
                     id: extruder
                     x: 96
                     y: 85
-                    value: 0.5
+                    width: 200
+                    height: 70
+                    value: back.extruder_temperature[1]
                     from: 0
-                    to: 250
+                    to: back.extruder_max_temperature[0]
                     stepSize: 1
                 }
 
@@ -170,21 +283,21 @@ Item {
                     id: extruder_temp
                     x: 264
                     y: 49
-                    text: qsTr(extruder.value + " °C")
+                    text: qsTr(back.extruder_temperature[0] +"/"+ extruder.value+" °C")
                 }
 
                 Label {
                     id: bed_temp
                     x: 264
                     y: 157
-                    text: qsTr(bed.value + " °C")
+                    text: qsTr(back.bed_temperature[0] +"/"+ back.bed_temperature[1]+" °C")
                 }
 
                 Label {
                     id: chamber_temp
                     x: 264
                     y: 251
-                    text: qsTr(chamber.value + " °C")
+                    text: qsTr(back.chamber_temperature[0] +"/"+ back.chamber_temperature[1]+" °C")
                 }
             }
         }
@@ -204,6 +317,6 @@ Item {
 
 /*##^##
 Designer {
-    D{i:0;autoSize:true;height:480;width:800}
+    D{i:0;autoSize:true;height:600;width:1024}
 }
 ##^##*/

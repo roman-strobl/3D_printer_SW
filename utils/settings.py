@@ -1,6 +1,9 @@
 import json
 import os
 
+_instance = None
+
+
 class PrinterSettings:
     """Class that provides settings for printer Class from json file."""
     data: dict
@@ -48,14 +51,13 @@ class PrinterSettings:
 default_setting = {
         "serial": {
             "port": "COM1",
-            "baudrate": 250000
+            "baudrate": 250000,
+            "auto_connect": False,
         },
         "printer": {
             "num_of_extruder": 1,
             "extruder": {
-                "first": {
-                    "max_temp": 250
-                }
+                "max_temp": [250]
             },
             "bed": {
                 "state": True,
@@ -68,17 +70,20 @@ default_setting = {
         },
         "MQTT": {
             "IP_address": "127.0.0.1",
-            "port": 1883
+            "port": 1883,
+            "auto_connect": False,
         },
         "MES": {
             "IP_address": "127.0.0.1",
             "port": 80
         },
+        "GUI": {
+            "baudrates": [250000, 115200, 230400, 57600, 38400, 19200, 9600],
+        }
 }
 
 __location__ = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname(__file__)))
-
 
 class Settings(object):
 
@@ -105,6 +110,14 @@ class Settings(object):
                     json.dump(self.setting, file, indent=4)
 
 
+def GetSettingsManager() -> Settings:
+    global _instance
+
+    if _instance is not None:
+        return _instance
+    else:
+        _instance = Settings()
+        return _instance
 
 
 if __name__ == '__main__':

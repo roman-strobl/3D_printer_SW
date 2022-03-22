@@ -9,7 +9,9 @@ import queue
 
 from printer.messages import G_Command_with_line, decommenter
 
-from utils.Event import post_event
+from utils.Event import post_event, subscribe
+
+from utils.settings import GetSettingsManager
 
 regex_temp = re.compile(
     r"(?P<tool>B|C|T(?P<toolnum>\d*)):\s*(?P<actual>[-+]?\d*\.?\d+)\s*\/?\s*(?P<target>[-+]?\d*\.?\d+)?")
@@ -19,9 +21,6 @@ regex_Firmware = re.compile(
     r"([A-Z][A-Z0-9_]*):")
 regex_cap = re.compile(
     r"(?P<name>\w*):(?P<value>[01])")
-
-
-
 
 
 class Printer(object):
@@ -74,14 +73,16 @@ class Printer(object):
 
         self.condition = threading.Condition()
 
-
-
         self._comm = serial.Serial(write_timeout=1, timeout=0.5)
         self._comm.setPort(kwargs.get("port"))
         self._comm.baudrate = kwargs.get("baudrate")
 
         self._autoreport_position = False
         self._autoreport_temp = False
+
+        subscribe("printer_connect", self.connect)
+        subscribe("printer_disconnect", self.disconnect)
+        subscribe("printer_command_axis", self.command_event)
 
     def _start_threads(self) -> None:
 
@@ -111,6 +112,7 @@ class Printer(object):
         self._command_to_send.put("M110")
         self._command_to_send.put("M115")
 
+        post_event("printer_connection", "CONNECTED")
         print("connected")
 
     def disconnect(self) -> str:
@@ -118,12 +120,30 @@ class Printer(object):
         self._sending_active = False
         self._monitoring_active = False
 
+        with self.condition:
+            self.condition.notify_all()
+
         self.sending_thread = None
         self.monitoring_thread = None
 
-        self._comm.close()
+        self._command_to_send = queue.Queue()
 
+        self._comm.close()
+        post_event("printer_connection", "DISCONNECTED")
         return "disconnect"
+
+    def command_event(self, command: dict):
+        match command["axis"]:
+            case "X":
+                self._position_X += command["range"]
+                self.put_command(f"G1 X{self._position_X}")
+            case "Y":
+                self._position_Y += command["range"]
+                self.put_command(f"G1 Y{self._position_Y}")
+            case "Z":
+                self._position_Z += command["range"]
+                self.put_command(f"G1 Z{self._position_Z}")
+        print(command)
 
     def _reader(self):
         if self._comm is None:
@@ -170,7 +190,7 @@ class Printer(object):
 
             if message.startswith("ok"):
                 with self.condition:
-                    self.condition.notifyAll()
+                    self.condition.notify_all()
                 continue
 
             if message.startswith("X:") or " Y:" in message or " Z" in message or " E:" in message:
@@ -180,8 +200,9 @@ class Printer(object):
                 for match in re.finditer(regex_position, string[0]):
 
                     data[match["axis"]] = match["value"]
-
-                self.client.publish("printer/position", str(data))
+                # todo: udělat event fire na pozici
+                #self.client.publish("printer/position", str(data))
+                post_event("position_update", data)
 
             if " T:" in message or " T0:" in message or " B:" in message or " C:" in message:
                 print(message)
@@ -217,14 +238,12 @@ class Printer(object):
                     self._chamberTemp, self._targetChamberTemp = result["C"]
 
                 data = {"time": datetime.datetime.now().ctime(),
-                        "tools": {
-                            "T0": self._temp
-                        },
-                        "bed": self._bedTemp,
-                        "chamber": self._chamberTemp,
+                        "tools": [self._temp,self._targetTemp],
+                        "bed": [self._bedTemp, self._targetBedTemp],
+                        "chamber": [self._chamberTemp, self._targetChamberTemp],
                         }
-
-                self.client.publish("printer/temperature", str(data))
+                # todo: udělat event fire na teplotu
+                # self.client.publish("printer/temperature", str(data))
                 post_event("temperature_update", data)
 
             if message.startswith("FIRMWARE_NAME:"):
@@ -254,8 +273,7 @@ class Printer(object):
     def _sender(self):
         n_line = 1
         while self._sending_active:
-
-            if not self._pause:
+            if not self._pause and self._sending_active:
                 try:
                     command = self._command_to_send.get()
                 except queue.Empty:

@@ -6,10 +6,9 @@ Button{
     implicitWidth: 70
     implicitHeight: 60
 
-    background: Rectangle{
-        id: bgBtn
-        color: "#f62323"
-    }
+    icon.name: home
+    icon.source: "../icons/icons8-home-b.svg"
+
 
     onClicked: {
         stackView.push(Qt.resolvedUrl("../pages/MainMenu.qml"))

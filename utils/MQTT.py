@@ -1,15 +1,35 @@
 
 import paho.mqtt.client as paho
-
-def _init_mqtt() -> paho.Client:
-    client = paho.Client("printer")
-
-    try:
-        client.connect("192.168.0.207", 1883)
-    except Exception as e:
-        print(e)
-
-    return client
+from utils.settings import GetSettingsManager
+from utils.Event import subscribe, post_event
 
 
-client = _init_mqtt()
+class MQTT(object):
+
+    def __init__(self):
+        self.settings = GetSettingsManager()
+        self.IP_address = self.settings.setting["MQTT"]["IP_address"]
+        self.port = self.settings.setting["MQTT"]["port"]
+
+        self.client = paho.Client("printer")
+
+        self.auto_connect = self.settings.setting["MQTT"]["auto_connect"]
+
+        subscribe("temperature_update", self.send_temperature)
+        subscribe("position_update", self.send_position)
+
+        if self.auto_connect is True:
+            self.connect()
+
+    def connect(self):
+        try:
+            self.client.connect(self.IP_address, self.port)
+        except Exception as e:
+            print(e)
+        print("MQTT připojeno")
+
+    def send_temperature(self, data):
+        self.client.publish("printer/temperature", str(data))
+
+    def send_position(self, data):
+        self.client.publish("printer/position", str(data))

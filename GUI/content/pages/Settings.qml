@@ -16,11 +16,10 @@ Item {
 
         CustomButton {
             id: customButton
-            y: 420
             anchors.left: parent.left
             anchors.bottom: parent.bottom
-            anchors.leftMargin: 0
-            anchors.bottomMargin: 0
+            anchors.bottomMargin: 4
+            anchors.leftMargin: 4
         }
 
         SwipeView {
@@ -87,7 +86,7 @@ Item {
                 }
 
                 Button {
-                    id: button
+                    id: save_button
                     x: 365
                     y: 290
                     text: qsTr("SAVE")
@@ -134,25 +133,26 @@ Item {
                 }
 
                 Button {
-                    id: save_button
+                    id: savebutton
                     x: 365
                     y: 290
                     text: qsTr("SAVE")
+                }
+                TextField {
+                    id: textField1
+                    x: 229
+                    y: 80
+                    placeholderText: qsTr(back.mqtt_ip)
                 }
 
                 TextField {
                     id: textField
                     x: 229
                     y: 180
-                    placeholderText: qsTr("Text Field")
+                    placeholderText: back.mqtt_port
                 }
 
-                TextField {
-                    id: textField1
-                    x: 229
-                    y: 80
-                    placeholderText: qsTr("Text Field")
-                }
+
             }
 
             Item {

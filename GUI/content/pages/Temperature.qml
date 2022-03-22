@@ -15,31 +15,91 @@ Item {
 
         CustomButton {
             id: customButton
-            x: 0
-            y: 420
+            anchors.left: parent.left
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 4
+            anchors.leftMargin: 4
         }
 
         SwipeView {
             id: settingsView
-            y: 34
-            height: 390
             anchors.left: parent.left
             anchors.right: parent.right
+            anchors.top: pageIndicator.bottom
+            anchors.bottom: customButton.top
+            anchors.bottomMargin: 10
+            anchors.topMargin: 10
             anchors.rightMargin: 0
             anchors.leftMargin: 0
             currentIndex: 0
 
             Item {
                 id: printerSetting
+
+                Column {
+                    id: column
+                    width: 301
+                    anchors.left: parent.left
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+                    anchors.leftMargin: 50
+                    anchors.bottomMargin: 0
+                    anchors.topMargin: 0
+                }
+
                 Label {
-                    id: label
-                    x: 359
-                    y: 161
-                    width: 210
-                    height: 74
-                    color: "#ddff0000"
-                    text: qsTr("Temperature")
-                    font.pointSize: 21
+                    id: extruders
+                    x: 154
+                    y: 29
+                    color: "#ffffff"
+                    text: qsTr("Extruders:")
+                    font.bold: true
+                    font.pointSize: 16
+                }
+                Label {
+                    id: bed
+                    x: 154
+                    y: 179
+                    color: "#ffffff"
+                    text: qsTr("Bed:")
+                    font.bold: true
+                    font.pointSize: 16
+                }
+                Label {
+                    id: chamber
+                    x: 154
+                    y: 350
+                    color: "#ffffff"
+                    text: qsTr("Chamber:")
+                    font.bold: true
+                    font.pointSize: 16
+                }
+
+                Label {
+                    id: extruders_temperature
+                    x: 160
+                    y: 104
+                    color: "#ea6060"
+                    text: qsTr(back.extruder_temperature[0] +"/"+ back.extruder_temperature[1]+" °C")
+                    font.pointSize: 16
+                }
+
+                Label {
+                    id: bed_temperature
+                    x: 154
+                    y: 261
+                    color: "#ea6060"
+                    text: qsTr(back.bed_temperature[0] +"/"+ back.bed_temperature[1]+" °C")
+                    font.pointSize: 16
+                }
+
+                Label {
+                    id: chamber_temperature
+                    x: 154
+                    y: 423
+                    color: "#ea6060"
+                    text: qsTr(back.chamber_temperature[0] +"/"+ back.chamber_temperature[1]+" °C")
+                    font.pointSize: 16
                 }
 
             }
@@ -51,6 +111,7 @@ Item {
             Item {
                 id: mesSetting
             }
+
         }
 
         PageIndicator {
@@ -65,3 +126,9 @@ Item {
         }
     }
 }
+
+/*##^##
+Designer {
+    D{i:0;autoSize:true;height:600;width:1024}D{i:5}D{i:3}
+}
+##^##*/

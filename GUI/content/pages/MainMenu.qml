@@ -12,61 +12,84 @@ Item {
         anchors.topMargin: 0
         visible: true
 
-        Button {
-            id: button
-            x: 180
-            y: 164
-            text: qsTr("Connect")
-        }
+        Grid {
+            id: grid_menu
+            anchors.fill: parent
+            anchors.margins: 10
+            spacing: 10
+            rows: 2
+            columns: 3
 
-        Button {
-            id: button1
-            x: 366
-            y: 164
-            text: qsTr("setting")
-            onClicked: {
-                stackView.push(Qt.resolvedUrl("Settings.qml"))
+            property int dynamic_width: grid_menu.width / grid_menu.columns - grid_menu.anchors.margins * 2
+            property int dynamic_height: grid_menu.height / grid_menu.rows  - grid_menu.anchors.margins * 2
+
+            Button {
+                id: button
+                text: if(!back.printer_status){qsTr("Connect")} else{qsTr("Disconnect")}
+                width: grid_menu.dynamic_width
+                height: grid_menu.dynamic_height
+                onClicked: {
+                    if (!back.printer_status){
+                        backend.print_connect()
+                    }
+                    else{
+                        backend.print_disconnect()
+                    }
+                }
+            }
+
+            Button {
+                id: button1
+                text: qsTr("setting")
+                width: grid_menu.dynamic_width
+                height: grid_menu.dynamic_height
+                onClicked: {
+                    stackView.push(Qt.resolvedUrl("Settings.qml"))
+                }
+            }
+
+            Button {
+                id: button2
+                text: qsTr("Control")
+                leftPadding: 8
+                rightPadding: 8
+                topPadding: 12
+                width: grid_menu.dynamic_width
+                height: grid_menu.dynamic_height
+                onClicked: {
+                    stackView.push(Qt.resolvedUrl("Control.qml"))
+                }
+            }
+            Button {
+                id: button3
+                text: qsTr("Temperature")
+                width: grid_menu.dynamic_width
+                height: grid_menu.dynamic_height
+                onClicked: {
+                    stackView.push(Qt.resolvedUrl("Temperature.qml"))
+                }
+            }
+
+            Button {
+                id: button4
+                text: qsTr("Print")
+                width: grid_menu.dynamic_width
+                height: grid_menu.dynamic_height
+                onClicked: {
+                    stackView.push(Qt.resolvedUrl("Print.qml"))
+                }
+            }
+
+            Button {
+                id: button5
+                text: qsTr("Exit")
+                width: grid_menu.dynamic_width
+                height: grid_menu.dynamic_height
+                onClicked: mainWindow.close()
             }
         }
-
-        Button {
-            id: button2
-            x: 587
-            y: 164
-            text: qsTr("Control")
-            onClicked: {
-                stackView.push(Qt.resolvedUrl("Control.qml"))
-            }
-        }
-        Button {
-            id: button3
-            x: 180
-            y: 286
-            text: qsTr("Temperature")
-            onClicked: {
-                stackView.push(Qt.resolvedUrl("Temperature.qml"))
-            }
-        }
-
-        Button {
-            id: button4
-            x: 366
-            y: 286
-            text: qsTr("Print")
-            onClicked: {
-                stackView.push(Qt.resolvedUrl("Print.qml"))
-            }
-        }
-
-        Button {
-            id: button5
-            x: 587
-            y: 286
-            text: qsTr("Exit")
-            onClicked: mainWindow.close()
-        }
-
     }
+
 }
 
 /*##^##

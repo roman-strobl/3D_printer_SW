@@ -15,8 +15,10 @@ Item {
 
         CustomButton {
             id: customButton
-            x: 0
-            y: 420
+            anchors.left: parent.left
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 4
+            anchors.leftMargin: 4
         }
 
         SwipeView {
