@@ -80,7 +80,7 @@ Item {
                     x: 160
                     y: 104
                     color: "#ea6060"
-                    text: qsTr(back.extruder_temperature[0] +"/"+ back.extruder_temperature[1]+" °C")
+                    text: qsTr(back.extruder_temperature[0] +"/"+ back.extruder_target_temperature[0]+" °C")
                     font.pointSize: 16
                 }
 
@@ -89,7 +89,7 @@ Item {
                     x: 154
                     y: 261
                     color: "#ea6060"
-                    text: qsTr(back.bed_temperature[0] +"/"+ back.bed_temperature[1]+" °C")
+                    text: qsTr(back.bed_temperature +"/"+ back.bed_target_temperature+" °C")
                     font.pointSize: 16
                 }
 
@@ -98,7 +98,7 @@ Item {
                     x: 154
                     y: 423
                     color: "#ea6060"
-                    text: qsTr(back.chamber_temperature[0] +"/"+ back.chamber_temperature[1]+" °C")
+                    text: qsTr(back.chamber_temperature +"/"+ back.chamber_target_temperature+" °C")
                     font.pointSize: 16
                 }
 

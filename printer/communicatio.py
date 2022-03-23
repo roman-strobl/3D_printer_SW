@@ -238,7 +238,7 @@ class Printer(object):
                     self._chamberTemp, self._targetChamberTemp = result["C"]
 
                 data = {"time": datetime.datetime.now().ctime(),
-                        "tools": [self._temp,self._targetTemp],
+                        "tools": [self._temp, self._targetTemp],
                         "bed": [self._bedTemp, self._targetBedTemp],
                         "chamber": [self._chamberTemp, self._targetChamberTemp],
                         }

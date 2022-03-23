@@ -248,7 +248,7 @@ Item {
                     y: 285
                     width: 200
                     height: 70
-                    value: back.chamber_temperature[1]
+                    value: back.chamber_target_temperature
                     from: 0
                     to: back.chamber_max_temperature
                     stepSize: 1
@@ -261,7 +261,7 @@ Item {
                     y: 182
                     width: 200
                     height: 70
-                    value: back.bed_temperature[1]
+                    value: back.bed_target_temperature
                     from: 0
                     to: back.bed_max_temperature
                     stepSize: 1
@@ -273,7 +273,7 @@ Item {
                     y: 85
                     width: 200
                     height: 70
-                    value: back.extruder_temperature[1]
+                    value: back.extruder_target_temperature[0]
                     from: 0
                     to: back.extruder_max_temperature[0]
                     stepSize: 1
@@ -290,14 +290,14 @@ Item {
                     id: bed_temp
                     x: 264
                     y: 157
-                    text: qsTr(back.bed_temperature[0] +"/"+ back.bed_temperature[1]+" °C")
+                    text: qsTr(back.bed_temperature +"/"+ bed.value+" °C")
                 }
 
                 Label {
                     id: chamber_temp
                     x: 264
                     y: 251
-                    text: qsTr(back.chamber_temperature[0] +"/"+ back.chamber_temperature[1]+" °C")
+                    text: qsTr(back.chamber_temperature +"/"+ chamber.value+" °C")
                 }
             }
         }

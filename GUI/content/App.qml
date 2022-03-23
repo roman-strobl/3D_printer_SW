@@ -71,9 +71,14 @@ Window {
         property int bed_max_temperature: 0
         property int chamber_max_temperature:0
 
-        property var extruder_temperature: [0,0]
-        property var bed_temperature: [0,0]
-        property var chamber_temperature: [0,0]
+        property var extruder_target_temperature: [0]
+        property var extruder_temperature: [0]
+
+        property int bed_target_temperature: 0
+        property int bed_temperature: 0
+
+        property int chamber_target_temperature: 0
+        property int chamber_temperature: 0
 
         property string mqtt_ip: ""
         property int mqtt_port: 0
@@ -135,9 +140,16 @@ Window {
         function onGetMQTTPort(mqtt_port){
             back.mqtt_port = mqtt_port
         }
-
+        function onExtruderTargetTemperature(extruder_target_temperature){
+            back.extruder_target_temperature = extruder_target_temperature
+        }
+        function onGetBedTargetTemperature(bed_target_temperature){
+            back.bed_target_temperature = bed_target_temperature
+        }
+        function onGetChamberTargetTemperature(chamber_target_temperature){
+            back.chamber_target_temperature = chamber_target_temperature
+        }
     }
     Component.onCompleted: startupFunction();
 
 }
-

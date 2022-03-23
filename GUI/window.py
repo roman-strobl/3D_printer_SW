@@ -21,8 +21,12 @@ class MainWindow(QObject):
     getChamberMaxTemperature = Signal(int)
 
     getExtruderTemperature = Signal(list)
-    getBedTemperature = Signal(list)
-    getChamberTemperature = Signal(list)
+    getBedTemperature = Signal(float)
+    getChamberTemperature = Signal(float)
+
+    getExtruderTargetTemperature = Signal(list)
+    getBedTargetTemperature = Signal(float)
+    getChamberTargetTemperature = Signal(float)
 
     getPositions = Signal(list)
 
@@ -36,6 +40,12 @@ class MainWindow(QObject):
     # Signáli pro získání nastavení MES
     getMESIP = Signal(str)
     getMESPort = Signal(int)
+
+    extruder_target_temperature: list = [0]
+    bed_target_temperature: float = 0
+    chamber_target_temperature: float = 0
+
+
 
     def __init__(self):
         QObject.__init__(self)
@@ -89,9 +99,21 @@ class MainWindow(QObject):
             print("notSame")
 
     def update_temperature(self, data):
+        #todo: při posílání teploty extruderu rozdělit cílovou a reálnou
         self.getExtruderTemperature.emit(data["tools"])
-        self.getBedTemperature.emit(data["bed"])
-        self.getChamberTemperature.emit(data["chamber"])
+        self.getBedTemperature.emit(data["bed"][0])
+        self.getChamberTemperature.emit(data["chamber"][0])
+
+        if data["tools"][1] != self.extruder_target_temperature[0]:
+            self.extruder_target_temperature[0] = data["tools"][1]
+            self.getExtruderTargetTemperature.emit(self.extruder_target_temperature)
+        if data["bed"][1] != self.bed_target_temperature:
+            self.bed_target_temperature = data["bed"][1]
+            self.getBedTargetTemperature.emit(self.bed_target_temperature)
+        if data["chamber"][1] != self.chamber_target_temperature:
+            self.chamber_target_temperature = data["chamber"][1]
+            self.getChamberTargetTemperature.emit(self.chamber_target_temperature)
+
 
     def update_position(self, data):
         position_list = [data["X"], data["Y"], data["Z"]]
@@ -119,3 +141,6 @@ class MainWindow(QObject):
             self.getPrinterStatus.emit(False)
         else:
             print("Neznamý stav")
+
+    #@Slot(int, float)
+    #def ChangeExtruderTemperature(self,num , value):
