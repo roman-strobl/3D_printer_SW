@@ -94,8 +94,8 @@ class Printer(object):
         self.sending_thread = threading.Thread(target=self._sender, name="comm._sender")
         self.monitoring_thread = threading.Thread(target=self._monitoring, name="comm._monitor")
 
-        self.sending_thread.daemon = False
-        self.monitoring_thread.daemon = False
+        self.sending_thread.daemon = True
+        self.monitoring_thread.daemon = True
 
         self.monitoring_thread.start()
         self.sending_thread.start()
@@ -121,6 +121,7 @@ class Printer(object):
 
         self._sending_active = False
         self._monitoring_active = False
+
         self.sending_thread = None
         self.monitoring_thread = None
 
@@ -211,7 +212,6 @@ class Printer(object):
                 for match in re.finditer(regex_position, string[0]):
 
                     data[match["axis"]] = match["value"]
-                # todo: udělat event fire na pozici
                 #self.client.publish("printer/position", str(data))
                 post_event("position_update", data)
 
@@ -253,7 +253,6 @@ class Printer(object):
                         "bed": [self._bedTemp, self._targetBedTemp],
                         "chamber": [self._chamberTemp, self._targetChamberTemp],
                         }
-                # todo: udělat event fire na teplotu
                 # self.client.publish("printer/temperature", str(data))
                 post_event("temperature_update", data)
 
@@ -278,7 +277,8 @@ class Printer(object):
                 self._print_param[match["name"]] = match["value"]
 
         print("konec")
-
+        with self.condition:
+            self.condition.notify_all()
         return
 
     def _sender(self):
@@ -287,21 +287,19 @@ class Printer(object):
             if not self._pause and self._sending_active:
                 try:
                     command = self._command_to_send.get()
-                except queue.Empty:
-                    continue
-                try:
                     command_to_send = G_Command_with_line(command, n_line)
                     self._comm.write(command_to_send.process())
                     self._comm.flush()
                     print(f"Poslaný příkaz {command_to_send}")
                     n_line += 1
+                except queue.Empty:
+                    continue
                 finally:
                     self._command_to_send.task_done()
-            with self.condition:
-                self.condition.wait()
-        return "konec senderu"
-
-    pass
+                with self.condition:
+                    self.condition.wait()
+            else:
+                print("konec sender")
 
     @property
     def port(self):

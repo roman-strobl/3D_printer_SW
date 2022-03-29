@@ -1,5 +1,6 @@
 subscribers = dict()
 
+# todo: vytvořit Event object, ve kterém budou všechny možné eventy.
 
 def subscribe(event_type: str, fn):
     if not event_type in subscribers:

@@ -55,6 +55,10 @@ default_setting = {
             "auto_connect": False,
         },
         "printer": {
+            "temperature_report": True,
+            "temperature_report_interval": 4,
+            "position_report": True,
+            "position_report_interval": 1,
             "num_of_extruder": 1,
             "extruder": {
                 "max_temp": [250]
