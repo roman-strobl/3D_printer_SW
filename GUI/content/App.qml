@@ -140,7 +140,7 @@ Window {
         function onGetMQTTPort(mqtt_port){
             back.mqtt_port = mqtt_port
         }
-        function onExtruderTargetTemperature(extruder_target_temperature){
+        function onGetExtruderTargetTemperature(extruder_target_temperature){
             back.extruder_target_temperature = extruder_target_temperature
         }
         function onGetBedTargetTemperature(bed_target_temperature){

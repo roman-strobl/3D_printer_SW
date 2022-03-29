@@ -21,107 +21,67 @@ Item {
             anchors.leftMargin: 4
         }
 
-        SwipeView {
+        Rectangle {
             id: settingsView
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.top: pageIndicator.bottom
+            anchors.top: parent.top
             anchors.bottom: customButton.top
             anchors.bottomMargin: 10
             anchors.topMargin: 10
             anchors.rightMargin: 0
             anchors.leftMargin: 0
-            currentIndex: 0
+            color:"transparent"
 
-            Item {
-                id: printerSetting
-
-                Column {
+            Column {
                     id: column
                     width: 301
                     anchors.left: parent.left
                     anchors.top: parent.top
                     anchors.bottom: parent.bottom
-                    anchors.leftMargin: 50
+                    spacing: 10
+                    anchors.leftMargin: 362
                     anchors.bottomMargin: 0
-                    anchors.topMargin: 0
-                }
+                    anchors.topMargin: 80
 
-                Label {
-                    id: extruders
-                    x: 154
-                    y: 29
-                    color: "#ffffff"
-                    text: qsTr("Extruders:")
-                    font.bold: true
-                    font.pointSize: 16
-                }
-                Label {
-                    id: bed
-                    x: 154
-                    y: 179
-                    color: "#ffffff"
-                    text: qsTr("Bed:")
-                    font.bold: true
-                    font.pointSize: 16
-                }
-                Label {
-                    id: chamber
-                    x: 154
-                    y: 350
-                    color: "#ffffff"
-                    text: qsTr("Chamber:")
-                    font.bold: true
-                    font.pointSize: 16
-                }
 
-                Label {
-                    id: extruders_temperature
-                    x: 160
-                    y: 104
-                    color: "#ea6060"
-                    text: qsTr(back.extruder_temperature[0] +"/"+ back.extruder_target_temperature[0]+" °C")
-                    font.pointSize: 16
-                }
+                    Temperature_box {
+                        id: temperature_box_extruder
+                        name: "Extruder"
+                        tool: "T"
+                        width: 301
+                        height: 120
+                        visible: true
+                        real_tempetature: back.extruder_temperature[0]
+                        target_temperature: back.extruder_target_temperature[0]
+                        max_temperature: back.extruder_max_temperature[0]
 
-                Label {
-                    id: bed_temperature
-                    x: 154
-                    y: 261
-                    color: "#ea6060"
-                    text: qsTr(back.bed_temperature +"/"+ back.bed_target_temperature+" °C")
-                    font.pointSize: 16
-                }
+                    }
 
-                Label {
-                    id: chamber_temperature
-                    x: 154
-                    y: 423
-                    color: "#ea6060"
-                    text: qsTr(back.chamber_temperature +"/"+ back.chamber_target_temperature+" °C")
-                    font.pointSize: 16
-                }
+                    Temperature_box {
+                        id: temperature_box_bed
+                        name: "Bed"
+                        tool: "B"
+                        width: 301
+                        height: 120
+                        visible: back.bed_status
+                        real_tempetature: back.bed_temperature
+                        target_temperature: back.bed_target_temperature
+                        max_temperature: back.bed_max_temperature
+                    }
 
+                    Temperature_box {
+                        id: temperature_box_chamber
+                        name: "Chamber"
+                        tool: "C"
+                        width: 301
+                        height: 120
+                        visible: back.chamber_status
+                        real_tempetature: back.chamber_temperature
+                        max_temperature: back.chamber_max_temperature
+                        target_temperature: back.chamber_target_temperature
+                    }
             }
-
-            Item {
-                id: mqttSetting
-            }
-
-            Item {
-                id: mesSetting
-            }
-
-        }
-
-        PageIndicator {
-            id: pageIndicator
-            anchors.top: parent.top
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.topMargin: 0
-
-            count: settingsView.count
-            currentIndex: settingsView.currentIndex
 
         }
     }
@@ -129,6 +89,6 @@ Item {
 
 /*##^##
 Designer {
-    D{i:0;autoSize:true;height:600;width:1024}D{i:5}D{i:3}
+    D{i:0;autoSize:true;formeditorZoom:0.9;height:600;width:1024}
 }
 ##^##*/

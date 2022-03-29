@@ -32,26 +32,15 @@ Item {
             currentIndex: 0
 
             Item {
-                id: printerSetting
-
-                Label {
-                    id: label
-                    x: 359
-                    y: 161
-                    width: 210
-                    height: 74
-                    color: "#ddff0000"
-                    text: qsTr("PRINT")
-                    font.pointSize: 21
-                }
+                id: print_file
             }
 
             Item {
-                id: mqttSetting
+                id: print_automatic
             }
 
             Item {
-                id: mesSetting
+                id: scripts
             }
 
 

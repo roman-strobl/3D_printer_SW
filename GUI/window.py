@@ -45,8 +45,6 @@ class MainWindow(QObject):
     bed_target_temperature: float = 0
     chamber_target_temperature: float = 0
 
-
-
     def __init__(self):
         QObject.__init__(self)
 
@@ -120,11 +118,25 @@ class MainWindow(QObject):
         self.getPositions.emit(position_list)
 
     @Slot(str, int)
-    def send_GCode(self, axis, range):
+    def send_move_command(self, axis, range):
         command = {"axis": axis,
                    "range": range
                    }
         post_event("printer_command_axis", command)
+
+    @Slot(str)
+    def send_home_command(self, axis):
+        command = {"axis": axis,
+                   }
+        post_event("printer_command_home", command)
+
+    @Slot(str, int)
+    def send_temp_command(self, tool, value):
+        command = {"tool": tool,
+                   "value": value,
+                   }
+        print(command)
+        post_event("printer_command_temp", command)
 
     @Slot()
     def print_connect(self):

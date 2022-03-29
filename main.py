@@ -5,6 +5,7 @@ import sys
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
 from PySide6.QtCore import QObject, Slot, Signal, QTimer
+from PySide6.QtQuickControls2 import QQuickStyle
 
 from printer.communicatio import Printer
 
@@ -13,6 +14,7 @@ from GUI.window import MainWindow
 from utils.MQTT import MQTT
 
 if __name__ == "__main__":
+    QQuickStyle.setStyle("Material")
     app = QGuiApplication(sys.argv)
     engine = QQmlApplicationEngine()
 

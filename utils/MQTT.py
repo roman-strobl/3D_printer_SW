@@ -27,6 +27,11 @@ class MQTT(object):
         except Exception as e:
             print(e)
         print("MQTT připojeno")
+        post_event("MQTT_connection", True)
+
+    def disconnect(self):
+        self.client.disconnect()
+        post_event("MQTT_connection", False)
 
     def send_temperature(self, data):
         self.client.publish("printer/temperature", str(data))

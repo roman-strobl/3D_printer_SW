@@ -15,13 +15,231 @@ Item {
 
         CustomButton {
             id: customButton
+            y: 547
             anchors.left: parent.left
             anchors.bottom: parent.bottom
-            anchors.bottomMargin: 4
-            anchors.leftMargin: 4
+            anchors.bottomMargin: 10
+            anchors.leftMargin: 10
         }
 
-        SwipeView {
+        Rectangle{
+            id: rectangle_settings
+            color: "#00ffffff"
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.bottom: customButton.top
+            anchors.topMargin: 0
+            anchors.bottomMargin: 1
+            anchors.rightMargin: 0
+            anchors.leftMargin: 0
+
+
+                Button {
+                    id: button
+                    x: 158
+                    y: 174
+                    width: 70
+                    height: 60
+                    text: qsTr("Y+")
+                    onClicked: {
+                    backend.send_move_command("Y",range.value)
+                    }
+                }
+
+                Button {
+                    id: button1
+                    x: 70
+                    y: 261
+                    width: 70
+                    height: 60
+                    text: qsTr("X-")
+                    onClicked: {
+                    backend.send_move_command("X",-range.value)
+                    }
+                }
+
+                Button {
+                    id: button2
+                    x: 158
+                    y: 358
+                    width: 70
+                    height: 60
+                    text: qsTr("Y-")
+                    onClicked: {
+                    backend.send_move_command("Y",-range.value)
+                    }
+                }
+
+                Button {
+                    id: button3
+                    x: 246
+                    y: 261
+                    width: 70
+                    height: 60
+                    text: qsTr("X+")
+                    clip: false
+                    transformOrigin: Item.Center
+                    onClicked: {
+                    backend.send_move_command("X",range.value)
+                    }
+                }
+
+                Button {
+                    id: button4
+                    x: 345
+                    y: 174
+                    width: 70
+                    height: 60
+                    text: qsTr("Z+")
+                    onClicked: {
+                    backend.send_move_command("Z",range.value)
+                    }
+                }
+
+                Button {
+                    id: button5
+                    x: 345
+                    y: 358
+                    width: 70
+                    height: 60
+                    text: qsTr("Z-")
+                    onClicked: {
+                    backend.send_move_command("Z",-range.value)
+                    }
+                }
+
+                Button {
+                    id: button6
+                    x: 477
+                    y: 174
+                    width: 70
+                    height: 60
+                    text: qsTr("E+")
+                    onClicked: {
+                    backend.send_move_command("E",range.value)
+                    }
+                }
+
+                Button {
+                    id: button7
+                    x: 477
+                    y: 358
+                    width: 70
+                    height: 60
+                    text: qsTr("E-")
+                    onClicked: {
+                    backend.send_move_command("E",-range.value)
+                    }
+                }
+
+                Label {
+                    id: label
+                    color: "#ffffff"
+                    text: qsTr("X: "+ back.positions[0])
+                    anchors.left: parent.left
+                    anchors.top: parent.top
+                    anchors.topMargin: 10
+                    anchors.leftMargin: 10
+                }
+
+                Label {
+                    id: label1
+                    color: "#ffffff"
+                    text: qsTr("Y: "+ back.positions[1])
+                    anchors.left: parent.left
+                    anchors.top: label.bottom
+                    anchors.leftMargin: 10
+                    anchors.topMargin: 10
+                }
+
+                Label {
+                    id: label2
+                    color: "#ffffff"
+                    text: qsTr("Z: "+ back.positions[2])
+                    anchors.left: parent.left
+                    anchors.top: label1.bottom
+                    anchors.topMargin: 10
+                    anchors.leftMargin: 10
+                }
+
+                Button {
+                    id: range
+                    x: 902
+                    y: 433
+                    width: 70
+                    height: 60
+
+                    property var range_list: [1,5,10]
+                    property int range_current: 0
+
+                    property int value: range.range_list[range.range_current]
+
+                    text: qsTr(range.value+" mm")
+
+                    onClicked: {
+                        range.range_current = range.range_current + 1
+                        if (range.range_current >= 3){
+                            range.range_current = 0
+                        }
+
+                    }
+
+                }
+
+                Button {
+                    id: home
+                    x: 692
+                    y: 174
+                    width: 70
+                    height: 48
+                    text: qsTr("Home")
+                    onClicked: {
+                        backend.send_home_command()
+                    }
+                }
+
+                Button {
+                    id: home_x
+                    x: 692
+                    y: 239
+                    width: 70
+                    height: 48
+                    text: qsTr("Home X")
+                    onClicked: {
+                        backend.send_home_command("X")
+                    }
+                }
+
+                Button {
+                    id: home_y
+                    x: 692
+                    y: 306
+                    width: 70
+                    height: 48
+                    text: qsTr("Home Y")
+                    onClicked: {
+                        backend.send_home_command("Y")
+                    }
+                }
+
+                Button {
+                    id: home_z
+                    x: 692
+                    y: 370
+                    width: 70
+                    height: 48
+                    text: qsTr("Home Z")
+                    onClicked: {
+                        backend.send_home_command("Z")
+                    }
+                }
+
+
+            }
+        }
+
+        /*SwipeView {
             id: settingsView
             anchors.left: parent.left
             anchors.right: parent.right
@@ -44,7 +262,7 @@ Item {
                     height: 60
                     text: qsTr("Y+")
                     onClicked: {
-                    backend.send_GCode("Y",range.value)
+                    backend.send_move_command("Y",range.value)
                     }
                 }
 
@@ -56,7 +274,7 @@ Item {
                     height: 60
                     text: qsTr("X-")
                     onClicked: {
-                    backend.send_GCode("X",-range.value)
+                    backend.send_move_command("X",-range.value)
                     }
                 }
 
@@ -68,7 +286,7 @@ Item {
                     height: 60
                     text: qsTr("Y-")
                     onClicked: {
-                    backend.send_GCode("Y",-range.value)
+                    backend.send_move_command("Y",-range.value)
                     }
                 }
 
@@ -82,7 +300,7 @@ Item {
                     clip: false
                     transformOrigin: Item.Center
                     onClicked: {
-                    backend.send_GCode("X",range.value)
+                    backend.send_move_command("X",range.value)
                     }
                 }
 
@@ -94,7 +312,7 @@ Item {
                     height: 60
                     text: qsTr("Z+")
                     onClicked: {
-                    backend.send_GCode("Z",range.value)
+                    backend.send_move_command("Z",range.value)
                     }
                 }
 
@@ -106,7 +324,7 @@ Item {
                     height: 60
                     text: qsTr("Z-")
                     onClicked: {
-                    backend.send_GCode("Z",-range.value)
+                    backend.send_move_command("Z",-range.value)
                     }
                 }
 
@@ -219,7 +437,7 @@ Item {
             }
 
             Item {
-                id: mqttSetting
+                id: temperature_settings
 
                 Label {
                     id: extruder_label
@@ -312,7 +530,7 @@ Item {
             currentIndex: settingsView.currentIndex
 
         }
-    }
+    }*/
 }
 
 /*##^##

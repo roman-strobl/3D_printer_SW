@@ -82,7 +82,9 @@ class Printer(object):
 
         subscribe("printer_connect", self.connect)
         subscribe("printer_disconnect", self.disconnect)
-        subscribe("printer_command_axis", self.command_event)
+        subscribe("printer_command_axis", self.command_move_event)
+        subscribe("printer_command_home", self.command_home_event)
+        subscribe("printer_command_temp", self.command_temp_event)
 
     def _start_threads(self) -> None:
 
@@ -119,10 +121,6 @@ class Printer(object):
 
         self._sending_active = False
         self._monitoring_active = False
-
-        with self.condition:
-            self.condition.notify_all()
-
         self.sending_thread = None
         self.monitoring_thread = None
 
@@ -132,7 +130,7 @@ class Printer(object):
         post_event("printer_connection", "DISCONNECTED")
         return "disconnect"
 
-    def command_event(self, command: dict):
+    def command_move_event(self, command: dict):
         match command["axis"]:
             case "X":
                 self._position_X += command["range"]
@@ -144,6 +142,19 @@ class Printer(object):
                 self._position_Z += command["range"]
                 self.put_command(f"G1 Z{self._position_Z}")
         print(command)
+
+    def command_home_event(self, command: dict):
+        self.put_command(f"G28 {command['axis']}")
+
+    def command_temp_event(self, command: dict):
+        match command["tool"]:
+            case "T":
+                self.put_command(f"M104 S{command['value']}")
+            case "B":
+                self.put_command(f"M140 S{command['value']}")
+            case "C":
+                self.put_command(f"M141 S{command['value']}")
+
 
     def _reader(self):
         if self._comm is None:

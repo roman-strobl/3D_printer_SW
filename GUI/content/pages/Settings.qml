@@ -18,8 +18,8 @@ Item {
             id: customButton
             anchors.left: parent.left
             anchors.bottom: parent.bottom
-            anchors.bottomMargin: 4
-            anchors.leftMargin: 4
+            anchors.bottomMargin: 10
+            anchors.leftMargin: 10
         }
 
         SwipeView {
@@ -30,7 +30,7 @@ Item {
             anchors.right: parent.right
             anchors.rightMargin: 0
             anchors.leftMargin: 0
-            currentIndex: 0
+            currentIndex: 1
 
             Item {
                 id: printerSetting
@@ -58,7 +58,9 @@ Item {
 
                 ComboBox {
                     id: port_choice
-                    y: 85
+                    y: 93
+                    width: 120
+                    height: 32
                     anchors.left: port_label.right
                     wheelEnabled: false
                     clip: false
@@ -70,7 +72,7 @@ Item {
                 Label {
                     id: baudrate_label
                     x: 71
-                    y: 186
+                    y: 187
                     width: 121
                     height: 33
                     text: qsTr("Baudrate:")
@@ -79,7 +81,9 @@ Item {
 
                 ComboBox {
                     id: baudrate_choice
-                    y: 179
+                    y: 187
+                    width: 120
+                    height: 32
                     anchors.left: baudrate_label.right
                     anchors.leftMargin: 23
                     model: back.baudrate_list
@@ -87,8 +91,8 @@ Item {
 
                 Button {
                     id: save_button
-                    x: 365
-                    y: 290
+                    x: 375
+                    y: 328
                     text: qsTr("SAVE")
                     onClicked: {
                         backend.portList("save")
@@ -96,6 +100,9 @@ Item {
                 }
 
 
+            }
+            Item {
+                id: printerSetting2
             }
 
             Item {
@@ -134,22 +141,42 @@ Item {
 
                 Button {
                     id: savebutton
-                    x: 365
-                    y: 290
+                    x: 368
+                    y: 297
                     text: qsTr("SAVE")
                 }
                 TextField {
                     id: textField1
                     x: 229
-                    y: 80
+                    y: 92
+                    width: 171
+                    height: 32
                     placeholderText: qsTr(back.mqtt_ip)
                 }
 
                 TextField {
                     id: textField
                     x: 229
-                    y: 180
+                    y: 179
+                    width: 115
+                    height: 32
                     placeholderText: back.mqtt_port
+                }
+
+                Switch {
+                    id: switch1
+                    x: 558
+                    y: 171
+                    text: qsTr("Autoconnect")
+                }
+
+                Label {
+                    id: label
+                    x: 568
+                    y: 94
+                    width: 138
+                    height: 19
+                    text: qsTr("Stav: ")
                 }
 
 
@@ -168,6 +195,7 @@ Item {
                     font.pixelSize: 25
                 }
             }
+
         }
 
         PageIndicator {
