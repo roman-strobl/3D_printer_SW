@@ -4,17 +4,17 @@ import QtQuick.Controls
 
 Window {
     id: mainWindow
-    width: 1024
-    height: 600
+    width: 600
+    height: 1024
     visible: true
     color: "#2c313c"
-    minimumHeight: 480
-    maximumHeight: 600
-    minimumWidth: 800
-    maximumWidth: 1024
+    minimumHeight: 800
+    maximumHeight: 1024
+    minimumWidth: 480
+    maximumWidth: 600
     title: "GUI_Printer"
 
-    flags: Qt.Window | Qt.FramelessWindowHint
+    //flags: Qt.Window | Qt.FramelessWindowHint
 
     function startupFunction() {
             backend.Init()
@@ -46,8 +46,8 @@ Window {
         text: if(back.printer_status){qsTr("Connect")} else{qsTr("Disconnect")}
         anchors.left: parent.left
         anchors.top: parent.top
-        anchors.leftMargin: 26
-        anchors.topMargin: 15
+        anchors.leftMargin: 16
+        anchors.topMargin: 10
     }
     Connections{
         id:back
@@ -87,15 +87,11 @@ Window {
 
         function onGetPorts(port_list){
             back.port_list = port_list
-            backend.Debug()
         }
         function onGetBaudrates(baudrate_list){
             back.baudrate_list = baudrate_list
-            backend.Debug()
         }
         function onGetPrinterStatus(printer_status){
-            back.printer_status = printer_status
-            backend.Debug()
         }
 
         function onGetPort(port){
@@ -153,3 +149,5 @@ Window {
     Component.onCompleted: startupFunction();
 
 }
+
+

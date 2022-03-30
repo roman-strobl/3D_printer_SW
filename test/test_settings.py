@@ -1,7 +1,6 @@
 import unittest
-from utils.settings import PrinterSettings
+from utils.settings import PrinterSettings, Settings
 import json
-import os
 
 test_dict_add = {
   "Profile1": {
@@ -78,7 +77,13 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(test_dict_del, new_dict, "Profil se nesmazal")
 
 
-if __name__ == '__main__':
 
+class MySettingsTestCase(unittest.TestCase):
+
+    def setUp(self):
+        mysettings = Settings()
+
+
+if __name__ == "__main___":
     unittest.main()
 

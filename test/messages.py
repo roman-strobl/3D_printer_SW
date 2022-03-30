@@ -1,5 +1,4 @@
 import unittest
-
 from printer.messages import G_Command_with_line, G_Command_without_line
 
 COMMAND: str = "G1 X25"
@@ -29,5 +28,5 @@ class TestMessages_without_line(unittest.TestCase):
         self.assertEqual(b"G1 X25\n", self.command.process(), "Výstup není zprávný")
 
 
-if __name__ == '__main__':
-    unittest.main()
+
+unittest.main()

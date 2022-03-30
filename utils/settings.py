@@ -89,6 +89,7 @@ default_setting = {
 __location__ = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
+
 class Settings(object):
 
     setting = {}
@@ -112,6 +113,8 @@ class Settings(object):
                 with open(basedir, "w") as file:
                     self.setting = default_setting
                     json.dump(self.setting, file, indent=4)
+
+
 
 
 def GetSettingsManager() -> Settings:

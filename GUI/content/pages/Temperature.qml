@@ -6,7 +6,10 @@ Item {
     Rectangle {
         id: menu_view
         color: "#2c313c"
-        anchors.fill: parent
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
         anchors.rightMargin: 0
         anchors.bottomMargin: 0
         anchors.leftMargin: 0
@@ -17,32 +20,26 @@ Item {
             id: customButton
             anchors.left: parent.left
             anchors.bottom: parent.bottom
-            anchors.bottomMargin: 4
-            anchors.leftMargin: 4
+            anchors.bottomMargin: 10
+            anchors.leftMargin: 10
         }
 
         Rectangle {
-            id: settingsView
+            id: temperatureView
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.top: parent.top
             anchors.bottom: customButton.top
-            anchors.bottomMargin: 10
-            anchors.topMargin: 10
+            anchors.topMargin: 0
+            anchors.bottomMargin: 5
             anchors.rightMargin: 0
             anchors.leftMargin: 0
             color:"transparent"
 
             Column {
-                    id: column
-                    width: 301
-                    anchors.left: parent.left
-                    anchors.top: parent.top
-                    anchors.bottom: parent.bottom
-                    spacing: 10
-                    anchors.leftMargin: 362
-                    anchors.bottomMargin: 0
-                    anchors.topMargin: 80
+                id: column
+                anchors.fill: parent
+                spacing: 10
 
 
                     Temperature_box {
@@ -89,6 +86,6 @@ Item {
 
 /*##^##
 Designer {
-    D{i:0;autoSize:true;formeditorZoom:0.9;height:600;width:1024}
+    D{i:0;autoSize:true;formeditorZoom:0.9;height:974;width:580}D{i:4}D{i:3}
 }
 ##^##*/

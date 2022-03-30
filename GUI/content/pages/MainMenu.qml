@@ -14,17 +14,17 @@ Item {
 
         Grid {
             id: grid_menu
-            anchors.margins: 10
-            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.fill: parent
+            verticalItemAlignment: Grid.AlignVCenter
+            horizontalItemAlignment: Grid.AlignHCenter
+            padding: 10
             spacing: 10
-            rows: 2
-            columns: 3
+            rows: 3
+            columns: 2
 
-            property int dynamic_width: grid_menu.width / grid_menu.columns - grid_menu.anchors.margins * 2
-            property int dynamic_height: grid_menu.height / grid_menu.rows  - grid_menu.anchors.margins * 2
-            anchors.left: parent.left
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
+            property int dynamic_width: grid_menu.width / grid_menu.columns - 10 - 10
+            property int dynamic_height: grid_menu.height / grid_menu.rows - 10 - 10
+            width: 576
 
             Button {
                 id: btn_connect
@@ -40,17 +40,6 @@ Item {
                     }
                 }
             }
-
-            Button {
-                id: btn_setting
-                text: qsTr("setting")
-                width: grid_menu.dynamic_width
-                height: grid_menu.dynamic_height
-                onClicked: {
-                    stackView.push(Qt.resolvedUrl("Settings.qml"))
-                }
-            }
-
             Button {
                 id: btn_control
                 text: qsTr("Control")
@@ -72,7 +61,6 @@ Item {
                     stackView.push(Qt.resolvedUrl("Temperature.qml"))
                 }
             }
-
             Button {
                 id: btn_print
                 text: qsTr("Print")
@@ -82,7 +70,15 @@ Item {
                     stackView.push(Qt.resolvedUrl("Print.qml"))
                 }
             }
-
+            Button {
+                id: btn_setting
+                text: qsTr("setting")
+                width: grid_menu.dynamic_width
+                height: grid_menu.dynamic_height
+                onClicked: {
+                    stackView.push(Qt.resolvedUrl("Settings.qml"))
+                }
+            }    
             Button {
                 id: btn_exit
                 text: qsTr("Exit")
@@ -97,6 +93,6 @@ Item {
 
 /*##^##
 Designer {
-    D{i:0;autoSize:true;height:480;width:800}
+    D{i:0;autoSize:true;height:974;width:580}D{i:2}
 }
 ##^##*/
