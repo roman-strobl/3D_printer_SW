@@ -108,7 +108,7 @@ Item {
                     y: 187
                     width: 120
                     height: 32
-                    displayText: back.port
+                    displayText: back.baudrate
                     anchors.left: baudrate_label.right
                     anchors.leftMargin: 23
                     model: back.baudrate_list

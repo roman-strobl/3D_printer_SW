@@ -14,7 +14,7 @@ Window {
     maximumWidth: 600
     title: "GUI_Printer"
 
-    //flags: Qt.Window | Qt.FramelessWindowHint
+    flags: Qt.Window | Qt.FramelessWindowHint
 
     function startupFunction() {
             backend.Init()
@@ -92,6 +92,7 @@ Window {
             back.baudrate_list = baudrate_list
         }
         function onGetPrinterStatus(printer_status){
+            back.printer_status = printer_status
         }
 
         function onGetPort(port){
@@ -151,3 +152,9 @@ Window {
 }
 
 
+
+/*##^##
+Designer {
+    D{i:0;formeditorZoom:0.9}
+}
+##^##*/

@@ -27,5 +27,5 @@ if __name__ == "__main__":
         sys.exit(-1)
 
     mqtt = MQTT()
-    printer = Printer(port='COM4', baudrate=250000)
+    printer = Printer(port='COM6', baudrate=250000)
     sys.exit(app.exec())

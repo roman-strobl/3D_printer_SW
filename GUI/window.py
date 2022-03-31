@@ -114,8 +114,13 @@ class MainWindow(QObject):
 
 
     def update_position(self, data):
-        position_list = [data["X"], data["Y"], data["Z"]]
-        self.getPositions.emit(position_list)
+        try:
+            position_list = [data["X"], data["Y"], data["Z"]]
+            self.getPositions.emit(position_list)
+        except KeyError:
+            print("Nejsou zde data")
+
+
 
     @Slot(str, int)
     def send_move_command(self, axis, range):

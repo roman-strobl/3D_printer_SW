@@ -38,7 +38,8 @@ Item {
 
             Column {
                 id: column
-                anchors.fill: parent
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.horizontalCenter: parent.horizontalCenter
                 spacing: 10
 
 
@@ -86,6 +87,6 @@ Item {
 
 /*##^##
 Designer {
-    D{i:0;autoSize:true;formeditorZoom:0.9;height:974;width:580}D{i:4}D{i:3}
+    D{i:0;autoSize:true;formeditorZoom:0.9;height:974;width:580}
 }
 ##^##*/

@@ -164,7 +164,10 @@ class Printer(object):
         try:
             string = self._comm.readline()
         except Exception as ex:
+            post_event("Serial_ERROR", ex)
             print(f"Naskytla se chyba {ex}")
+            self.disconnect()
+
             return None
 
         string = string.decode('utf-8')
@@ -205,8 +208,7 @@ class Printer(object):
                     self.condition.notify_all()
                 continue
 
-            if message.startswith("X:") or " Y:" in message or " Z" in message or " E:" in message:
-
+            if message.startswith("X:") or " Y:" in message or " Z:" in message or " E:" in message:
                 string = message.split("Count")
                 data = {}
                 for match in re.finditer(regex_position, string[0]):
@@ -294,6 +296,10 @@ class Printer(object):
                     n_line += 1
                 except queue.Empty:
                     continue
+                except Exception as ex:
+                    post_event("Serial_ERROR", ex)
+                    print(f"Naskytla se chyba {ex}")
+                    self.disconnect()
                 finally:
                     self._command_to_send.task_done()
                 with self.condition:
