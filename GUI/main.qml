@@ -3,11 +3,6 @@ C++ project. */
 
 import QtQuick
 import content
+
 App {
 }
-
-/*##^##
-Designer {
-    D{i:0;autoSize:true;height:480;width:640}
-}
-##^##*/

@@ -1,5 +1,5 @@
 from utils.Event import subscribe, post_event
-from PySide6.QtCore import QObject, Slot, Signal, QTimer
+from PySide2.QtCore import QObject, Slot, Signal, QTimer
 import serial.tools.list_ports
 
 from utils.settings import GetSettingsManager

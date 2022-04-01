@@ -3,7 +3,7 @@ import QtQuick.Controls 2.15
 import "../controls"
 
 Item {
-    id: item1
+    id: settings
 
     Rectangle {
         id: menu_view
@@ -16,7 +16,6 @@ Item {
         anchors.bottomMargin: 0
         anchors.leftMargin: 0
         anchors.topMargin: 0
-        visible: true
 
         CustomButton {
             id: customButton
@@ -40,6 +39,7 @@ Item {
 
             Item {
                 id: printerSetting
+
                 Text {
                     id: text1
                     x: 237
@@ -51,70 +51,6 @@ Item {
                     font.pixelSize: 17
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.topMargin: 8
-                }
-
-                Label {
-                    id: port_label
-                    x: 71
-                    y: 93
-                    width: 121
-                    height: 34
-                    text: qsTr("Port:")
-                    anchors.left: parent.left
-                    anchors.right: baudrate_label.right
-                    anchors.top: parent.top
-                    anchors.rightMargin: 0
-                    anchors.leftMargin: 62
-                    anchors.topMargin: 90
-                    anchors.horizontalCenter: baudrate_label.horizontalCenter
-                    font.pointSize: 15
-                }
-
-                ComboBox {
-                    id: port_choice
-                    y: 93
-                    width: 120
-                    height: 32
-                    anchors.left: port_label.right
-                    displayText: back.port
-                    wheelEnabled: false
-                    clip: false
-                    layer.mipmap: false
-                    anchors.leftMargin: 23
-                    model: back.port_list
-                    onActivated: {
-                        back.port = back.port_list[index]
-                    }
-
-
-                }
-
-                Label {
-                    id: baudrate_label
-                    x: 62
-                    y: 187
-                    width: 121
-                    height: 33
-                    text: qsTr("Baudrate:")
-                    anchors.verticalCenter: baudrate_choice.verticalCenter
-                    anchors.top: baudrate_choice.top
-                    anchors.verticalCenterOffset: -1
-                    anchors.topMargin: -1
-                    font.pointSize: 15
-                }
-
-                ComboBox {
-                    id: baudrate_choice
-                    y: 187
-                    width: 120
-                    height: 32
-                    displayText: back.baudrate
-                    anchors.left: baudrate_label.right
-                    anchors.leftMargin: 23
-                    model: back.baudrate_list
-                    onActivated: {
-                        back.baudrate = back.baudrate_list[index]
-                    }
                 }
 
                 Button {
@@ -129,10 +65,91 @@ Item {
                     }
                 }
 
+                Switch {
+                    id: switch2
+                    x: 390
+                    y: 94
+                    text: qsTr("Auto connect")
+                }
 
-            }
-            Item {
-                id: printerSetting2
+                ToolSeparator {
+                    id: toolSeparator
+                    x: 30
+                    y: 216
+                    width: 540
+                    height: 12
+                }
+
+
+
+                Label {
+                        id: port_label
+                        x: 58
+                        y: 69
+                        width: 121
+                        height: 34
+                        text: qsTr("Port:")
+                        font.pointSize: 15
+                 }
+
+                 ComboBox {
+                     id: port_choice
+                     x: 201
+                     y: 72
+                     width: 120
+                     height: 32
+                     displayText: back.port
+                     wheelEnabled: false
+                     clip: false
+                     layer.mipmap: false
+                     model: back.port_list
+                     onActivated: {
+                         back.port = back.port_list[index]
+                     }
+                 }
+
+                 Label {
+                     id: baudrate_label
+                     x: 57
+                     y: 127
+                     width: 121
+                     height: 33
+                     text: qsTr("Baudrate:")
+                     font.pointSize: 15
+                 }
+
+                 ComboBox {
+                     id: baudrate_choice
+                     x: 201
+                     y: 127
+                     width: 120
+                     height: 32
+                     displayText: back.baudrate
+                     model: back.baudrate_list
+                     onActivated: {
+                         back.baudrate = back.baudrate_list[index]
+                     }
+                 }
+
+                Label {
+                    id: extruder_num_label
+                    x: 57
+                    y: 275
+                    width: 170
+                    height: 33
+                    text: qsTr("Num. of extruders:")
+                    font.pointSize: 15
+                }
+
+                ComboBox {
+                    id: extruder_num_choice
+                    x: 258
+                    y: 276
+                    width: 77
+                    height: 32
+                    //displayText: back.baudrate
+                    //model: [1,2,3,4,5,6,7,8,9,10]
+                }
             }
 
             Item {
@@ -175,6 +192,7 @@ Item {
                     y: 642
                     text: qsTr("SAVE")
                 }
+
                 TextField {
                     id: textField1
                     x: 46
@@ -254,6 +272,6 @@ Item {
 
 /*##^##
 Designer {
-    D{i:0;autoSize:true;height:1024;width:600}D{i:5}D{i:3}
+    D{i:0;autoSize:true;height:1024;width:600}
 }
 ##^##*/
