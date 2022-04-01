@@ -154,7 +154,10 @@ class Printer(object):
         print(command)
 
     def command_home_event(self, command: dict):
-        self.put_command(f"G28 {command['axis']}")
+        if command['axis'] == "all":
+            self.put_command(f"G28")
+        else:
+            self.put_command(f"G28 {command['axis']}")
 
     def command_temp_event(self, command: dict):
         #match command["tool"]:

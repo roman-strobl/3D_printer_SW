@@ -121,7 +121,7 @@ Item {
                 height: 48
                 text: qsTr("Home")
                 onClicked: {
-                    backend.send_home_command()
+                    backend.send_home_command("all")
                 }
             }
 
