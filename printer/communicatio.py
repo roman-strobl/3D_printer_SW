@@ -132,29 +132,44 @@ class Printer(object):
         return "disconnect"
 
     def command_move_event(self, command: dict):
-        match command["axis"]:
-            case "X":
-                self._position_X += command["range"]
-                self.put_command(f"G1 X{self._position_X}")
-            case "Y":
-                self._position_Y += command["range"]
-                self.put_command(f"G1 Y{self._position_Y}")
-            case "Z":
-                self._position_Z += command["range"]
-                self.put_command(f"G1 Z{self._position_Z}")
+        #match command["axis"]:
+        #    case "X":
+        #        self._position_X += command["range"]
+        #        self.put_command(f"G1 X{self._position_X}")
+        #    case "Y":
+        #        self._position_Y += command["range"]
+        #        self.put_command(f"G1 Y{self._position_Y}")
+        #    case "Z":
+        #        self._position_Z += command["range"]
+        #        self.put_command(f"G1 Z{self._position_Z}")
+        if command["axis"] == "X":
+            self._position_X += command["range"]
+            self.put_command(f"G1 X{self._position_X}")
+        if command["axis"] == "Y":
+            self._position_Y += command["range"]
+            self.put_command(f"G1 Y{self._position_Y}")
+        if command["axis"] == "Z":
+            self._position_Z += command["range"]
+            self.put_command(f"G1 Z{self._position_Z}")
         print(command)
 
     def command_home_event(self, command: dict):
         self.put_command(f"G28 {command['axis']}")
 
     def command_temp_event(self, command: dict):
-        match command["tool"]:
-            case "T":
-                self.put_command(f"M104 S{command['value']}")
-            case "B":
-                self.put_command(f"M140 S{command['value']}")
-            case "C":
-                self.put_command(f"M141 S{command['value']}")
+        #match command["tool"]:
+        #    case "T":
+        #        self.put_command(f"M104 S{command['value']}")
+        #    case "B":
+        #        self.put_command(f"M140 S{command['value']}")
+        #    case "C":
+        #        self.put_command(f"M141 S{command['value']}")
+        if command["tool"] == "T":
+            self.put_command(f"M104 S{command['value']}")
+        if command["tool"] == "B":
+            self.put_command(f"M140 S{command['value']}")
+        if command["tool"] == "C":
+            self.put_command(f"M141 S{command['value']}")
 
 
     def _reader(self):
