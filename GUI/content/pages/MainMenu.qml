@@ -29,6 +29,8 @@ Item {
             Button {
                 id: btn_connect
                 text: if(!back.printer_status){qsTr("Connect")} else{qsTr("Disconnect")}
+                highlighted: false
+                flat: false
                 enabled: true
                 checkable: false
                 checked: false
@@ -56,6 +58,7 @@ Item {
                     visible: !back.printer_status
                     anchors.fill: parent
                     source: "../icons/disconnected.png"
+                    antialiasing: false
                     anchors.rightMargin: 10
                     anchors.leftMargin: 10
                     anchors.bottomMargin: 10

@@ -35,7 +35,7 @@ Item {
             anchors.bottomMargin: 10
             anchors.rightMargin: 0
             anchors.leftMargin: 0
-            currentIndex: 0
+            currentIndex: 1
 
             Item {
                 id: printerSetting
@@ -67,8 +67,8 @@ Item {
 
                 Switch {
                     id: switch2
-                    x: 390
-                    y: 94
+                    x: 407
+                    y: 120
                     text: qsTr("Auto connect")
                 }
 
@@ -83,53 +83,53 @@ Item {
 
 
                 Label {
-                        id: port_label
-                        x: 58
-                        y: 69
-                        width: 121
-                        height: 34
-                        text: qsTr("Port:")
-                        font.pointSize: 15
-                 }
+                    id: port_label
+                    x: 30
+                    y: 72
+                    width: 121
+                    height: 34
+                    text: qsTr("Port:")
+                    font.pointSize: 15
+                }
 
-                 ComboBox {
-                     id: port_choice
-                     x: 201
-                     y: 72
-                     width: 120
-                     height: 32
-                     displayText: back.port
-                     wheelEnabled: false
-                     clip: false
-                     layer.mipmap: false
-                     model: back.port_list
-                     onActivated: {
-                         back.port = back.port_list[index]
-                     }
-                 }
+                ComboBox {
+                    id: port_choice
+                    x: 157
+                    y: 72
+                    width: 164
+                    height: 34
+                    displayText: back.port
+                    wheelEnabled: false
+                    clip: false
+                    layer.mipmap: false
+                    model: back.port_list
+                    onActivated: {
+                        back.port = back.port_list[index]
+                    }
+                }
 
-                 Label {
-                     id: baudrate_label
-                     x: 57
-                     y: 127
-                     width: 121
-                     height: 33
-                     text: qsTr("Baudrate:")
-                     font.pointSize: 15
-                 }
+                Label {
+                    id: baudrate_label
+                    x: 30
+                    y: 127
+                    width: 121
+                    height: 33
+                    text: qsTr("Baudrate:")
+                    font.pointSize: 15
+                }
 
-                 ComboBox {
-                     id: baudrate_choice
-                     x: 201
-                     y: 127
-                     width: 120
-                     height: 32
-                     displayText: back.baudrate
-                     model: back.baudrate_list
-                     onActivated: {
-                         back.baudrate = back.baudrate_list[index]
-                     }
-                 }
+                ComboBox {
+                    id: baudrate_choice
+                    x: 157
+                    y: 127
+                    width: 164
+                    height: 33
+                    displayText: back.baudrate
+                    model: back.baudrate_list
+                    onActivated: {
+                        back.baudrate = back.baudrate_list[index]
+                    }
+                }
 
                 Label {
                     id: extruder_num_label
@@ -150,6 +150,64 @@ Item {
                     //displayText: back.baudrate
                     //model: [1,2,3,4,5,6,7,8,9,10]
                 }
+
+                Label {
+                    id: extruder_num_label1
+                    x: 57
+                    y: 332
+                    width: 246
+                    height: 33
+                    text: qsTr("Max extruder temperature:")
+                    font.pointSize: 15
+                }
+
+                Slider {
+                    id: slider
+                    x: 57
+                    y: 464
+                    value: 0.5
+                }
+
+                Slider {
+                    id: slider1
+                    x: 362
+                    y: 464
+                    value: 0.5
+                }
+
+                Label {
+                    id: label1
+                    x: 58
+                    y: 446
+                    width: 199
+                    height: 17
+                    text: qsTr("Temperature report interval:")
+                }
+
+                Label {
+                    id: label2
+                    x: 362
+                    y: 446
+                    text: qsTr("Possition report interval:")
+                }
+
+                Label {
+                    id: extruder_num_label2
+                    x: 58
+                    y: 387
+                    width: 246
+                    height: 33
+                    text: qsTr("Max bed temperature:")
+                    font.pointSize: 15
+                }
+
+                ToolSeparator {
+                    id: toolSeparator1
+                    x: 30
+                    y: 557
+                    width: 540
+                    height: 12
+                }
             }
 
             Item {
@@ -167,7 +225,7 @@ Item {
                 }
 
                 Label {
-                    id: ip_label
+                    id: mqtt_ip_label
                     x: 71
                     y: 92
                     width: 121
@@ -177,7 +235,7 @@ Item {
                 }
 
                 Label {
-                    id: serverport_label
+                    id: mqtt_serverport_label
                     x: 71
                     y: 186
                     width: 121
@@ -186,73 +244,128 @@ Item {
                     font.pointSize: 15
                 }
 
-                Button {
-                    id: savebutton
-                    x: 233
-                    y: 642
-                    text: qsTr("SAVE")
-                }
-
                 TextField {
-                    id: textField1
+                    id: mqtt_ip_textField
                     x: 46
                     y: 92
-                    width: 171
-                    height: 32
-                    anchors.top: ip_label.top
+                    width: 139
+                    height: 42
+                    enabled: !back.mqtt_status
+                    anchors.top: mqtt_ip_label.top
+                    hoverEnabled: true
+                    anchors.topMargin: -3
                     anchors.horizontalCenterOffset: 159
-                    anchors.horizontalCenter: serverport_label.horizontalCenter
-                    placeholderText: qsTr(back.mqtt_ip)
+                    anchors.horizontalCenter: mqtt_serverport_label.horizontalCenter
+                    inputMask: "009.009.000.000;_"
+                    text: qsTr(back.mqtt_ip)
+                    onEditingFinished:{
+                        back.mqtt_ip = mqtt_ip_textField.text
+                        backend.mqtt_change_ip(back.mqtt_ip)
+                    }
                 }
 
                 TextField {
-                    id: textField
+                    id: mqtt_port_textField
                     x: 46
                     y: 187
-                    width: 115
-                    height: 32
-                    anchors.verticalCenter: serverport_label.verticalCenter
-                    anchors.left: textField1.left
-                    anchors.bottom: serverport_label.bottom
+                    width: 143
+                    height: 42
+                    enabled: !back.mqtt_status
+                    anchors.verticalCenter: mqtt_serverport_label.verticalCenter
+                    anchors.left: mqtt_ip_textField.left
+                    anchors.bottom: mqtt_serverport_label.bottom
+                    transformOrigin: Item.Center
+                    anchors.verticalCenterOffset: 0
+                    anchors.bottomMargin: -5
                     anchors.leftMargin: 0
-                    placeholderText: back.mqtt_port
+                    text: back.mqtt_port
+                    onEditingFinished:{
+                        back.mqtt_port = mqtt_port_textField.text
+                        backend.mqtt_change_port(back.mqtt_port)
+                    }
                 }
 
                 Switch {
-                    id: switch1
+                    id: mqtt_auto_connect
                     x: 58
-                    y: 390
+                    y: 348
+                    checked: back.mqtt_auto_connect
                     text: qsTr("Autoconnect")
+                    anchors.horizontalCenterOffset: -18
                     anchors.horizontalCenter: label.horizontalCenter
+                    onClicked: {
+                        back.mqtt_auto_connect = mqtt_auto_connect.checked
+                        backend.mqtt_auto_connect(back.mqtt_auto_connect)
+                    }
+
                 }
 
                 Label {
-                    id: label
+                    id: mqtt_status
                     x: 63
-                    y: 310
-                    width: 138
-                    height: 19
-                    text: qsTr("Stav: ")
-                    anchors.horizontalCenter: serverport_label.horizontalCenter
+                    y: 286
+                    width: 176
+                    height: 25
+                    text: qsTr("Status: " + (back.mqtt_status ? "Connected" : "Disconnected"))
+                    font.pointSize: 15
+                    anchors.horizontalCenterOffset: 27
+                    anchors.horizontalCenter: mqtt_serverport_label.horizontalCenter
                 }
 
+                Button {
+                    id: mqtt_connection_button
+                    x: 426
+                    y: 348
+                    width: 133
+                    height: 48
+                    text: qsTr(back.mqtt_status ? "Disconnect" : "Connect")
+                    onClicked: {
+                        if(back.mqtt_status){
+                            backend.mqtt_disconnect()
+                        }
+                        else{
+                            backend.mqtt_connect()
+                        }
 
-            }
-
-            Item {
-                id: mesSetting
-                Text {
-                    id: text3
-                    x: 243
-                    y: 8
-                    width: 131
-                    height: 45
-                    color: "#fc0000"
-                    text: qsTr("MES Server")
-                    anchors.top: parent.top
-                    font.pixelSize: 25
-                    anchors.topMargin: 8
+                    }
                 }
+
+                ToolSeparator {
+                    id: toolSeparator2
+                    x: 30
+                    y: 432
+                    width: 540
+                    height: 12
+                }
+
+                Label {
+                    id: label3
+                    x: 275
+                    y: 458
+                    text: qsTr("MES")
+                }
+
+                Label {
+                    id: mes_ip_label
+                    x: 71
+                    y: 513
+                    width: 121
+                    height: 34
+                    text: qsTr("IP address:")
+                    font.pointSize: 15
+                }
+
+                Label {
+                    id: mes_port_label
+                    x: 71
+                    y: 560
+                    width: 121
+                    height: 33
+                    visible: true
+                    text: qsTr("Port:")
+                    font.pointSize: 15
+                }
+
             }
 
         }
@@ -272,6 +385,6 @@ Item {
 
 /*##^##
 Designer {
-    D{i:0;autoSize:true;height:1024;width:600}
+    D{i:0;autoSize:true;height:1024;width:600}D{i:34}
 }
 ##^##*/

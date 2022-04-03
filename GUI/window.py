@@ -36,6 +36,8 @@ class MainWindow(QObject):
     # Signáli pro získání nastavení mqtt
     getMQTTIP = Signal(str)
     getMQTTPort = Signal(int)
+    getMQTT_status = Signal(bool)
+    getMQTT_auto_connect = Signal(bool)
 
     # Signáli pro získání nastavení MES
     getMESIP = Signal(str)
@@ -58,6 +60,7 @@ class MainWindow(QObject):
         subscribe("temperature_update", self.update_temperature)
         subscribe("position_update", self.update_position)
         subscribe("printer_connection", self.update_printer_status)
+        subscribe("MQTT_connection_status", self.mqtt_connection_state)
 
     @Slot()
     def Debug(self):
@@ -74,6 +77,7 @@ class MainWindow(QObject):
 
         self.getMQTTIP.emit(self.settings.setting["MQTT"]["IP_address"])
         self.getMQTTPort.emit(self.settings.setting["MQTT"]["port"])
+        self.getMQTT_auto_connect.emit(self.settings.setting["MQTT"]["auto_connect"])
 
         self.getExtruderMaxTemperature.emit(self.settings.setting["printer"]["extruder"]["max_temp"])
         self.getBedMaxTemperature.emit(self.settings.setting["printer"]["bed"]["max_temp"])
@@ -159,5 +163,28 @@ class MainWindow(QObject):
         else:
             print("Neznamý stav")
 
-    #@Slot(int, float)
-    #def ChangeExtruderTemperature(self,num , value):
+    # komunikace GUI s MQTT modulem
+    @Slot(str)
+    def mqtt_change_ip(self, ip_address: str):
+        data = {"ip_address": ip_address}
+        post_event("MQTT_settings", data)
+
+    @Slot(str)
+    def mqtt_change_port(self, port: int):
+        data = {"port": port}
+        post_event("MQTT_settings", data)
+
+    @Slot()
+    def mqtt_connect(self):
+        post_event("MQTT_connection", True)
+
+    @Slot()
+    def mqtt_disconnect(self):
+        post_event("MQTT_connection", False)
+
+    @Slot(bool)
+    def mqtt_auto_connect(self, state: bool):
+        print(f"Autoconnect {state}")
+
+    def mqtt_connection_state(self, state: bool):
+        self.getMQTT_status.emit(state)

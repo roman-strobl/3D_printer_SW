@@ -109,10 +109,18 @@ Window {
         property int chamber_target_temperature: 0
         property int chamber_temperature: 0
 
-        property string mqtt_ip: ""
-        property int mqtt_port: 0
 
         property var positions: [0,0,0]
+
+
+        //-------------MQTT_modul-----------------------
+
+        property string mqtt_ip: ""
+        property int mqtt_port: 0
+        property bool mqtt_status: false
+        property bool mqtt_auto_connect: false
+
+
 
         function onGetPorts(port_list){
             back.port_list = port_list
@@ -132,6 +140,9 @@ Window {
         }
         function onGetNumOfExtruders(num_of_extruders){
             back.num_of_extruders = num_of_extruders
+        }
+        function onGetPositions(positions){
+            back.positions = positions
         }
         function onGetBedStatus(bed_status){
             back.bed_status = bed_status
@@ -157,15 +168,7 @@ Window {
         function onGetChamberTemperature(chamber_temperature){
             back.chamber_temperature = chamber_temperature
         }
-        function onGetPositions(positions){
-            back.positions = positions
-        }
-        function onGetMQTTIP(mqtt_ip){
-            back.mqtt_ip = mqtt_ip
-        }
-        function onGetMQTTPort(mqtt_port){
-            back.mqtt_port = mqtt_port
-        }
+
         function onGetExtruderTargetTemperature(extruder_target_temperature){
             back.extruder_target_temperature = extruder_target_temperature
         }
@@ -175,6 +178,22 @@ Window {
         function onGetChamberTargetTemperature(chamber_target_temperature){
             back.chamber_target_temperature = chamber_target_temperature
         }
+
+        //---------------MQTT-modul-------------------
+        function onGetMQTTIP(mqtt_ip){
+            back.mqtt_ip = mqtt_ip
+        }
+        function onGetMQTTPort(mqtt_port){
+            back.mqtt_port = mqtt_port
+        }
+        function onGetMQTT_status(mqtt_status){
+            back.mqtt_status = mqtt_status
+        }
+        function onGetMQTT_auto_connect(mqtt_auto_connect){
+            back.mqtt_auto_connect = mqtt_auto_connect
+        }
+
+
     }
     Component.onCompleted: startupFunction();
 

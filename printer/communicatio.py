@@ -32,6 +32,7 @@ class Printer(object):
         """
         Inicialite the class of printer.
         """
+        self.settings = GetSettingsManager()
         self._extruder_count = None
 
         self._temp: list = []
@@ -55,6 +56,7 @@ class Printer(object):
         self._position_Y = 0.0
         self._position_Z = 0.0
 
+        #todo: zbytečné vědět, jak je tiskárná velká, protože se s tím vůbec nepracuje
         self._dimension_X = 235
         self._dimension_Y = 235
         self._dimension_Z = 240
@@ -74,8 +76,8 @@ class Printer(object):
         self.condition = threading.Condition()
 
         self._comm = serial.Serial(write_timeout=1, timeout=0.5)
-        self._comm.setPort(kwargs.get("port"))
-        self._comm.baudrate = kwargs.get("baudrate")
+        self._comm.setPort(self.settings.setting["serial"]["port"])
+        self._comm.baudrate = self.settings.setting["serial"]["baudrate"]
 
         self._autoreport_position = False
         self._autoreport_temp = False
