@@ -35,7 +35,7 @@ Item {
             anchors.bottomMargin: 10
             anchors.rightMargin: 0
             anchors.leftMargin: 0
-            currentIndex: 1
+            currentIndex: 0
 
             Item {
                 id: printerSetting

@@ -22,11 +22,14 @@ Item {
         }
 
         SwipeView {
-            id: settingsView
-            y: 34
+            id: printView
             height: 390
             anchors.left: parent.left
             anchors.right: parent.right
+            anchors.top: pageIndicator.bottom
+            anchors.bottom: customButton.top
+            anchors.bottomMargin: 10
+            anchors.topMargin: 10
             anchors.rightMargin: 0
             anchors.leftMargin: 0
             currentIndex: 0
@@ -61,6 +64,6 @@ Item {
 
 /*##^##
 Designer {
-    D{i:0;autoSize:true;height:480;width:800}
+    D{i:0;autoSize:true;formeditorZoom:0.75;height:974;width:580}D{i:3}
 }
 ##^##*/
