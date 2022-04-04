@@ -4,6 +4,21 @@ from utils.settings import GetSettingsManager
 from utils.Event import subscribe, post_event
 
 
+def on_disconnect(client, userdata, rc):
+    if rc != 0:
+        print("Unexpected disconnection.")
+    print("Disconnect")
+    post_event("MQTT_connection_status", False)
+
+
+def on_connect(client, userdata, flags, rc):
+    if rc == 0:
+        print("MQTT připojeno")
+        post_event("MQTT_connection_status", True)
+    else:
+        print("MQTT nepřipojeno")
+
+
 class MQTT(object):
 
     def __init__(self):
@@ -12,8 +27,8 @@ class MQTT(object):
         self.port = self.settings.setting["MQTT"]["port"]
 
         self.client = paho.Client("printer")
-        self.client.on_connect = self.on_connect
-        self.client.on_disconnect = self.on_disconnect
+        self.client.on_connect = on_connect
+        self.client.on_disconnect = on_disconnect
         self.auto_connect = self.settings.setting["MQTT"]["auto_connect"]
 
         subscribe("temperature_update", self.send_temperature)
@@ -48,19 +63,6 @@ class MQTT(object):
     def send_position(self, data):
         if self.client.is_connected():
             self.client.publish("printer/position", str(data))
-
-    def on_connect(self, client, userdata, flags, rc):
-        if rc == 0:
-            print("MQTT připojeno")
-            post_event("MQTT_connection_status", True)
-        else:
-            print("MQTT nepřipojeno")
-
-    def on_disconnect(self, client, userdata, rc):
-        if rc != 0:
-            print("Unexpected disconnection.")
-        print("Disconnect")
-        post_event("MQTT_connection_status", False)
 
     def change_settings(self, data: dict):
         # todo: dodělat uložení

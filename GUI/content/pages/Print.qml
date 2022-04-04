@@ -32,7 +32,7 @@ Item {
             anchors.topMargin: 10
             anchors.rightMargin: 0
             anchors.leftMargin: 0
-            currentIndex: 0
+            currentIndex: 2
 
             Item {
                 id: print_file
@@ -51,12 +51,14 @@ Item {
 
         PageIndicator {
             id: pageIndicator
+            width: 48
+            height: 20
             anchors.top: parent.top
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.topMargin: 0
 
-            count: settingsView.count
-            currentIndex: settingsView.currentIndex
+            count: printView.count
+            currentIndex: printView.currentIndex
 
         }
     }
@@ -64,6 +66,6 @@ Item {
 
 /*##^##
 Designer {
-    D{i:0;autoSize:true;formeditorZoom:0.75;height:974;width:580}D{i:3}
+    D{i:0;autoSize:true;formeditorZoom:0.75;height:974;width:580}
 }
 ##^##*/

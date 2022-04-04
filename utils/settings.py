@@ -70,6 +70,10 @@ default_setting = {
             "chamber": {
                 "state": False,
                 "max_temp": 50,
+            },
+            "reports_interval": {
+                "temperature": 4,
+                "position": 1,
             }
         },
         "MQTT": {
