@@ -24,9 +24,8 @@ if __name__ == "__main__":
     engine.load(os.fspath(Path(__file__).resolve().parent / "GUI/content/App.qml"))
 
     if not engine.rootObjects():
-        print("kokot")
         sys.exit(-1)
 
     mqtt = MQTT()
-    printer = Printer(port='COM6', baudrate=250000)
+    printer = Printer()
     sys.exit(app.exec_())

@@ -113,6 +113,9 @@ Window {
         property var positions: [0,0,0]
 
 
+        property int temp_interval: 4
+        property int position_interval: 1
+
         //-------------MQTT_modul-----------------------
 
         property string mqtt_ip: ""
@@ -131,12 +134,17 @@ Window {
         function onGetPrinterStatus(printer_status){
             back.printer_status = printer_status
         }
-
         function onGetPort(port){
             back.port = port
         }
         function onGetBaudrate(baudrate){
             back.baudrate = baudrate
+        }
+        function onGetPrinter_temp_interval(interval){
+            back.temp_interval = interval
+        }
+        function onGetPrinter_position_interval(interval){
+            back.position_interval = interval
         }
         function onGetNumOfExtruders(num_of_extruders){
             back.num_of_extruders = num_of_extruders

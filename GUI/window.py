@@ -13,6 +13,7 @@ class MainWindow(QObject):
     getBaudrate = Signal(int)
 
     getNumOfExtruders = Signal(int)
+
     getBedStatus = Signal(bool)
     getChamberStatus = Signal(bool)
 
@@ -32,6 +33,8 @@ class MainWindow(QObject):
 
     getPrinterStatus = Signal(bool)
 
+    getPrinter_temp_interval = Signal(int)
+    getPrinter_position_interval = Signal(int)
 
     # Signáli pro získání nastavení mqtt
     getMQTTIP = Signal(str)
@@ -162,6 +165,42 @@ class MainWindow(QObject):
             self.getPrinterStatus.emit(False)
         else:
             print("Neznamý stav")
+    # komunikace GUI s nastavením tiskárny
+
+    @Slot(str)
+    def serial_change_port(self, port: str):
+        post_event("serial_settings", {"port": port})
+        print(f"port: {port}")
+
+    @Slot(int)
+    def serial_change_baudrate(self, baudrate: int):
+        post_event("serial_settings", {"baudrate": baudrate})
+        print(f"baudrate: {baudrate}")
+
+    @Slot(int)
+    def printer_change_num_of_extruders(self, num_of_extruder: int):
+        pass
+
+    """
+    @Slot(int)
+    def printer_change_max_extruder_temp(self, max_extruder_temp: int):
+        pass
+
+    @Slot(int)
+    def printer_change_max_chamber_bed(self, max_bed_temp: int):
+        pass
+
+    @Slot(int)
+    def printer_change_max_chamber_temp(self, max_chamber_temp: int):
+        pass
+    """
+    @Slot(int)
+    def printer_change_temp_interval_report(self, interval: int):
+        post_event("printer_set_interval", {"type": "temperature", "interval": interval})
+
+    @Slot(int)
+    def printer_change_position_interval_report(self, interval: int):
+        post_event("printer_set_interval", {"type": "position", "interval": interval})
 
     # komunikace GUI s MQTT modulem
     @Slot(str)

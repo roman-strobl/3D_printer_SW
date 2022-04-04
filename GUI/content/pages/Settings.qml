@@ -53,18 +53,6 @@ Item {
                     anchors.topMargin: 8
                 }
 
-                Button {
-                    id: save_button
-                    x: 293
-                    y: 843
-                    text: qsTr("SAVE")
-                    anchors.bottom: parent.bottom
-                    anchors.bottomMargin: 8
-                    onClicked: {
-                        backend.portList("save")
-                    }
-                }
-
                 Switch {
                     id: switch2
                     x: 407
@@ -105,6 +93,7 @@ Item {
                     model: back.port_list
                     onActivated: {
                         back.port = back.port_list[index]
+                        backend.serial_change_port(back.port)
                     }
                 }
 
@@ -128,33 +117,38 @@ Item {
                     model: back.baudrate_list
                     onActivated: {
                         back.baudrate = back.baudrate_list[index]
+                        backend.serial_change_baudrate(back.baudrate)
                     }
                 }
 
                 Label {
                     id: extruder_num_label
-                    x: 57
-                    y: 275
+                    x: 30
+                    y: 278
                     width: 170
                     height: 33
                     text: qsTr("Num. of extruders:")
                     font.pointSize: 15
+
                 }
 
                 ComboBox {
                     id: extruder_num_choice
-                    x: 258
-                    y: 276
-                    width: 77
-                    height: 32
-                    //displayText: back.baudrate
-                    //model: [1,2,3,4,5,6,7,8,9,10]
+                    x: 304
+                    y: 278
+                    width: 87
+                    height: 33
+                    displayText: back.num_of_extruders
+                    model: [1,2,3,4,5,6,7,8,9,10]
+                    /*onActivated: {
+                        back.num_of_extruders = back.extruder_num_choice.model[index]
+                    }*/
                 }
 
                 Label {
                     id: extruder_num_label1
-                    x: 57
-                    y: 332
+                    x: 30
+                    y: 335
                     width: 246
                     height: 33
                     text: qsTr("Max extruder temperature:")
@@ -162,43 +156,87 @@ Item {
                 }
 
                 Slider {
-                    id: slider
-                    x: 57
-                    y: 464
-                    value: 0.5
+                    id: temp_interval
+                    x: 31
+                    y: 486
+                    value: back.temp_interval
+                    from:0
+                    to: 60
+                    stepSize: 1
+                    onMoved:{
+                        back.temp_interval = temp_interval.value
+                        backend.printer_change_temp_interval_report(back.temp_interval)
+                    }
                 }
 
                 Slider {
-                    id: slider1
-                    x: 362
-                    y: 464
-                    value: 0.5
+                    id: position_interval
+                    x: 335
+                    y: 486
+                    value: back.position_interval
+                    from:0
+                    to: 60
+                    stepSize: 1
+                    onMoved:{
+                        back.position_interval = position_interval.value
+                        backend.printer_change_position_interval_report(back.position_interval)
+                    }
                 }
 
                 Label {
-                    id: label1
-                    x: 58
-                    y: 446
-                    width: 199
-                    height: 17
-                    text: qsTr("Temperature report interval:")
+                    id: temp_interval_label
+                    x: 31
+                    y: 449
+                    width: 277
+                    height: 23
+                    text: qsTr("Temperature report interval: " + temp_interval.value + "s")
+                    font.pointSize: 14
                 }
 
                 Label {
-                    id: label2
-                    x: 362
-                    y: 446
-                    text: qsTr("Possition report interval:")
+                    id: position_inerval_label
+                    x: 335
+                    y: 449
+                    width: 230
+                    height: 23
+                    text: qsTr("Position report interval: " + position_interval.value + "s")
+                    font.pointSize: 14
                 }
 
                 Label {
                     id: extruder_num_label2
-                    x: 58
-                    y: 387
+                    x: 31
+                    y: 390
                     width: 246
                     height: 33
                     text: qsTr("Max bed temperature:")
                     font.pointSize: 15
+                }
+
+                TextField {
+                    id: extruder_max_temp
+                    x: 304
+                    y: 331
+                    width: 143
+                    height: 42
+                    visible: true
+                    text: back.extruder_max_temperature[0]
+                    onEditingFinished:{
+                        back.extruder_max_temperature[0] = extruder_max_temp.text
+                    }
+                }
+
+                TextField {
+                    id: bed_max_temp
+                    x: 304
+                    y: 386
+                    width: 143
+                    height: 42
+                    visible: true
+                    text: back.bed_max_temperature
+                    onEditingFinished:{
+                        back.bed_max_temperature = bed_max_temp.text
+                    }
                 }
 
                 ToolSeparator {
@@ -208,6 +246,8 @@ Item {
                     width: 540
                     height: 12
                 }
+
+
             }
 
             Item {
@@ -383,8 +423,10 @@ Item {
     }
 }
 
+
+
 /*##^##
 Designer {
-    D{i:0;autoSize:true;height:1024;width:600}D{i:34}
+    D{i:0;autoSize:true;height:1024;width:600}D{i:20}D{i:21}
 }
 ##^##*/

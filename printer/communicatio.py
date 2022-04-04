@@ -87,6 +87,8 @@ class Printer(object):
         subscribe("printer_command_axis", self.command_move_event)
         subscribe("printer_command_home", self.command_home_event)
         subscribe("printer_command_temp", self.command_temp_event)
+        subscribe("serial_settings", self.serial_change)
+        subscribe("printer_set_interval", self.report_interval)
 
     def _start_threads(self) -> None:
 
@@ -176,6 +178,18 @@ class Printer(object):
         if command["tool"] == "C":
             self.put_command(f"M141 S{command['value']}")
 
+    def serial_change(self, data: dict):
+        if data.get("port"):
+            self._comm.setPort(data["port"])
+        if data.get("baudrate"):
+            self._comm.baudrate(data["baudrate"])
+
+    def report_interval(self, data: dict):
+        if data["type"] == "temperature":
+            self._set_autoreport_temp(data.get("interval"))
+
+        if data["type"] == "position":
+            self._set_autoreport_position(data.get("interval"))
 
     def _reader(self):
         if self._comm is None:
