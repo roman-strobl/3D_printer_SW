@@ -65,7 +65,6 @@ class MQTT(object):
             self.client.publish("printer/position", str(data))
 
     def change_settings(self, data: dict):
-        # todo: dodělat uložení
         if data.get("ip_address") is not None:
             self.IP_address = data["ip_address"]
             self.settings.setting["MQTT"]["IP_address"] = self.IP_address

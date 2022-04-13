@@ -1,4 +1,5 @@
 import datetime
+import io
 
 import serial
 import re
@@ -382,7 +383,7 @@ class Printer(object):
     def is_connect(self):
         return self._comm.isOpen()
 
-    def print_from_file(self, file: str):
+    def print_from_file_buffered(self, file: str):
 
         try:
             f = open(file)
@@ -397,6 +398,16 @@ class Printer(object):
             if f_line.isspace() is False and len(f_line) > 0:
                 self._command_to_send.put(f_line)
                 print(f"příkaz {f_line} byl přidát do fronty")
+
+        f.close()
+
+    def print_from_file_stream(self, file: str):
+        try:
+            f = open(file)
+            print(f'soubor {file} se podařilo otevřít')
+        except Exception as ex:
+            print(ex)
+            pass
 
         f.close()
 
