@@ -1,5 +1,6 @@
 import json
 import os
+from enum import Enum
 
 _instance = None
 
@@ -94,10 +95,17 @@ __location__ = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 
+class SettingType:
+    SERIAL = "serial"
+    PRINTER = "printer"
+    MQTT = "MQTT"
+    MES = "MES"
+    GUI = "GUI"
+
+
 class Settings(object):
 
     setting = {}
-
     def __init__(self, basedir: str = None):
 
         if basedir is None:
@@ -117,6 +125,10 @@ class Settings(object):
                 with open(basedir, "w") as file:
                     self.setting = default_setting
                     json.dump(self.setting, file, indent=4)
+
+    def update(self):
+        with open("setting.json", "w") as file:
+            json.dump(self.setting, file, indent=4)
 
 
 

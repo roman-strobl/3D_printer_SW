@@ -69,6 +69,14 @@ class MQTT(object):
         if data.get("ip_address") is not None:
             self.IP_address = data["ip_address"]
             self.settings.setting["MQTT"]["IP_address"] = self.IP_address
+            self.settings.update()
+
         if data.get("port") is not None:
             self.port = int(data["port"])
             self.settings.setting["MQTT"]["port"] = self.port
+            self.settings.update()
+
+        if data.get("auto_connect") is not None:
+            self.auto_connect = data["auto_connect"]
+            self.settings.setting["MQTT"]["auto_connect"] = self.auto_connect
+            self.settings.update()

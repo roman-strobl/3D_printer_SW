@@ -223,7 +223,8 @@ class MainWindow(QObject):
 
     @Slot(bool)
     def mqtt_auto_connect(self, state: bool):
-        print(f"Autoconnect {state}")
+        data = {"auto_connect": state}
+        post_event("MQTT_settings", data)
 
     def mqtt_connection_state(self, state: bool):
         self.getMQTT_status.emit(state)

@@ -136,6 +136,8 @@ class Printer(object):
         return "disconnect"
 
     def command_move_event(self, command: dict):
+
+        # Tato část kódu nefunguje pro python verze < 3.10
         #match command["axis"]:
         #    case "X":
         #        self._position_X += command["range"]
@@ -146,6 +148,7 @@ class Printer(object):
         #    case "Z":
         #        self._position_Z += command["range"]
         #        self.put_command(f"G1 Z{self._position_Z}")
+
         if command["axis"] == "X":
             self._position_X += command["range"]
             self.put_command(f"G1 X{self._position_X}")
@@ -164,6 +167,7 @@ class Printer(object):
             self.put_command(f"G28 {command['axis']}")
 
     def command_temp_event(self, command: dict):
+        # Tato část kódu nefunguje pro python verze < 3.10
         #match command["tool"]:
         #    case "T":
         #        self.put_command(f"M104 S{command['value']}")
@@ -181,8 +185,13 @@ class Printer(object):
     def serial_change(self, data: dict):
         if data.get("port"):
             self._comm.setPort(data["port"])
+            self.settings.setting["serial"]["port"] = data["port"]
+            self.settings.update()
+
         if data.get("baudrate"):
-            self._comm.baudrate(data["baudrate"])
+            self._comm.baudrate = data["baudrate"]
+            self.settings.setting["serial"]["baudrate"] = data["baudrate"]
+            self.settings.update()
 
     def report_interval(self, data: dict):
         if data["type"] == "temperature":
