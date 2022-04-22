@@ -228,3 +228,8 @@ class MainWindow(QObject):
 
     def mqtt_connection_state(self, state: bool):
         self.getMQTT_status.emit(state)
+
+    @Slot(str)
+    def print(self, file_url: str):
+        print(f"Start print {file_url}")
+        post_event("printer_start_print", file_url)

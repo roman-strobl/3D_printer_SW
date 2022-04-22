@@ -88,6 +88,7 @@ class Printer(object):
         subscribe("printer_command_axis", self.command_move_event)
         subscribe("printer_command_home", self.command_home_event)
         subscribe("printer_command_temp", self.command_temp_event)
+        subscribe("printer_start_print", self.print_from_file_buffered)
         subscribe("serial_settings", self.serial_change)
         subscribe("printer_set_interval", self.report_interval)
 

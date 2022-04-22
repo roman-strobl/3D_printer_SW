@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" serverName="rpi" exclude=".svn;.cvs;.idea;.DS_Store;.git;.hg;*.hprof;*.pyc;venv" remoteFilesAllowedToDisappearOnAutoupload="false">
+    <serverData>
+      <paths name="rpi">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/3D_printer_SW" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+  </component>
+</project>

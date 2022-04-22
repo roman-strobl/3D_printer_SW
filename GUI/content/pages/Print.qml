@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import "../controls"
+import QtQuick.Dialogs 1.0
 
 Item {
     Rectangle {
@@ -32,10 +33,44 @@ Item {
             anchors.topMargin: 10
             anchors.rightMargin: 0
             anchors.leftMargin: 0
-            currentIndex: 2
+            currentIndex: 0
 
             Item {
                 id: print_file
+
+                Button {
+                    id: button
+                    x: 382
+                    y: 82
+                    width: 137
+                    height: 57
+                    text: qsTr("Cesta")
+                    onClicked: {
+                        fileDialog.open()
+                    }
+                }
+
+                TextField {
+                    id: fileurl_textfield
+                    x: 40
+                    y: 96
+                    width: 312
+                    height: 43
+                    placeholderText: qsTr("Text Field")
+
+                }
+
+                Button {
+                    id: button1
+                    x: 205
+                    y: 332
+                    width: 128
+                    height: 68
+                    text: qsTr("tisk")
+                    onClicked: {
+                        backend.print(fileurl_textfield.text)
+                    }
+                }
             }
 
             Item {
@@ -61,6 +96,22 @@ Item {
             currentIndex: printView.currentIndex
 
         }
+    }
+
+    FileDialog {
+        id: fileDialog
+        title: "Please choose a G-code file"
+        folder: shortcuts.home
+        onAccepted: {
+            console.log("You chose: " + fileDialog.fileUrls)
+            fileurl_textfield.text = fileDialog.fileUrl
+            fileDialog.close
+        }
+        onRejected: {
+            console.log("Canceled")
+            fileDialog.close
+        }
+        nameFilters: [ "G-code (*.gcode *.txt)", "All files (*)" ]
     }
 }
 
