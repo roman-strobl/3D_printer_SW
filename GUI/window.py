@@ -97,11 +97,10 @@ class MainWindow(QObject):
             f_ports.append(port)
 
         if self.oldPort == f_ports:
-            print("same")
+            pass
         else:
             self.getPorts.emit(f_ports)
             self.oldPort = f_ports
-            print("notSame")
 
     def update_temperature(self, data):
         #todo: při posílání teploty extruderu rozdělit cílovou a reálnou

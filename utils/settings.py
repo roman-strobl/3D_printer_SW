@@ -131,8 +131,6 @@ class Settings(object):
             json.dump(self.setting, file, indent=4)
 
 
-
-
 def GetSettingsManager() -> Settings:
     global _instance
 

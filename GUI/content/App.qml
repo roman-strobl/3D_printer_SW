@@ -89,7 +89,7 @@ Window {
         property int baudrate: 0
         property var baudrate_list: []
 
-        property bool printer_status: true
+        property bool printer_status: false
 
         property int num_of_extruders: 1
 

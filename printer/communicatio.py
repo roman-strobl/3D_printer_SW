@@ -7,6 +7,7 @@ import time
 import threading
 import queue
 
+import logging
 
 from printer.messages import G_Command_with_line, decommenter
 
@@ -33,6 +34,7 @@ class Printer(object):
         """
         Inicialite the class of printer.
         """
+        self._is_loading = None
         self.settings = GetSettingsManager()
         self._extruder_count = None
 
@@ -49,6 +51,7 @@ class Printer(object):
         self._state = None
         self._M115_state = False
 
+        self._logger = logging.getLogger(__name__)
         self._comm = None
 
         self._automatic_send_temp = False
@@ -75,8 +78,9 @@ class Printer(object):
         self.monitoring_thread = None
 
         self.condition = threading.Condition()
+        self.event = threading.Event()
 
-        self._comm = serial.Serial(write_timeout=1, timeout=0.5)
+        self._comm = serial.Serial(timeout=0.5)
         self._comm.setPort(self.settings.setting["serial"]["port"])
         self._comm.baudrate = self.settings.setting["serial"]["baudrate"]
 
@@ -106,13 +110,13 @@ class Printer(object):
         self.monitoring_thread.start()
         self.sending_thread.start()
 
+
     def connect(self) -> str:
         try:
             self._comm.open()
             time.sleep(1)
         except Exception as ex:
             return str(ex)
-
         self._start_threads()
 
         time.sleep(2)
@@ -230,8 +234,8 @@ class Printer(object):
             elif message == "":
                 time.sleep(0.001)
                 continue
+            logging.debug(f"Message arrived: {message}")
             #print(message)
-
             if self._M115_state:
                 if not message.startswith("Cap") and not message.startswith("cap"):
                     self._M115_state = False
@@ -245,13 +249,21 @@ class Printer(object):
                     print(self._print_param)
                     print(self._M115_state)
 
+            print(message)
             if message.startswith("resend:"):
                 continue
 
-            if message.startswith("ok"):
-                with self.condition:
-                    self.condition.notify_all()
-                continue
+            # todo: staré řešení s condition.
+            #if message.startswith("ok"):
+            #    with self.condition:
+            #        self.condition.notify_all()
+            #    continue
+
+            if message.startswith("ok") or message.startswith(" ok"):
+                self.event.set()
+                if not ("X:" in message or " Y:" in message or " Z:" in message or " E:" in message) and not (
+                        " T:" in message or " T0:" in message or " B:" in message or " C:" in message):
+                    continue
 
             if message.startswith("X:") or " Y:" in message or " Z:" in message or " E:" in message:
                 string = message.split("Count")
@@ -261,9 +273,10 @@ class Printer(object):
                     data[match["axis"]] = match["value"]
                 #self.client.publish("printer/position", str(data))
                 post_event("position_update", data)
+                continue
 
             if " T:" in message or " T0:" in message or " B:" in message or " C:" in message:
-                print(message)
+                #print(message)
                 result = {}
 
                 for match in re.finditer(regex_temp, message):
@@ -302,6 +315,7 @@ class Printer(object):
                         }
                 # self.client.publish("printer/temperature", str(data))
                 post_event("temperature_update", data)
+                continue
 
             if message.startswith("FIRMWARE_NAME:"):
                 self._M115_state = True
@@ -324,20 +338,21 @@ class Printer(object):
                 self._print_param[match["name"]] = match["value"]
 
         print("konec")
-        with self.condition:
-            self.condition.notify_all()
+        self.event.set()
         return
 
     def _sender(self):
         n_line = 1
         while self._sending_active:
-            if not self._pause and self._sending_active:
+            if not self._pause and self._sending_active and not self._is_loading:
                 try:
                     command = self._command_to_send.get()
                     command_to_send = G_Command_with_line(command, n_line)
+                    self.event.clear()
                     self._comm.write(command_to_send.process())
                     self._comm.flush()
                     print(f"Poslaný příkaz {command_to_send}")
+                    logging.debug(f"Message send: {command_to_send}")
                     n_line += 1
                 except queue.Empty:
                     continue
@@ -347,10 +362,9 @@ class Printer(object):
                     self.disconnect()
                 finally:
                     self._command_to_send.task_done()
-                with self.condition:
-                    self.condition.wait()
-            else:
-                print("konec sender")
+                self.event.wait()
+
+        print("konec sender")
 
     @property
     def port(self):
@@ -385,22 +399,24 @@ class Printer(object):
         return self._comm.isOpen()
 
     def print_from_file_buffered(self, file: str):
-
+        self._is_loading = True
         try:
             f = open(file)
             print(f'soubor {file} se podařilo otevřít')
         except Exception as ex:
             print(ex)
-            pass
+            return
 
         for line in f:
             f_line = line.strip()  # vymazání zbytečných mezer
             f_line = decommenter(f_line)
             if f_line.isspace() is False and len(f_line) > 0:
                 self._command_to_send.put(f_line)
-                print(f"příkaz {f_line} byl přidát do fronty")
+                #print(f"příkaz {f_line} byl přidát do fronty")
 
         f.close()
+        print("Loaded")
+        self._is_loading = False
 
     def print_from_file_stream(self, file: str):
         try:

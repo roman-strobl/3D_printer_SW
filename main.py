@@ -1,3 +1,4 @@
+import logging
 import os
 from pathlib import Path
 import sys
@@ -13,6 +14,7 @@ from GUI.window import MainWindow
 from utils.MQTT import MQTT
 
 if __name__ == "__main__":
+    logging.basicConfig(filename='debug.log', encoding='utf-8', level=logging.DEBUG)
     QQuickStyle.setStyle("Material")
     app = QGuiApplication(sys.argv)
     engine = QQmlApplicationEngine()

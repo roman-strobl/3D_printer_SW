@@ -16,3 +16,9 @@ def post_event(event_type: str, data):
             fn()
         else:
             fn(data)
+
+
+class Event(object):
+
+    TEMPERATURE = "temperature_update"
+    POSITION = "position_update"

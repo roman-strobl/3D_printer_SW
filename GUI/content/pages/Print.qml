@@ -103,8 +103,9 @@ Item {
         title: "Please choose a G-code file"
         folder: shortcuts.home
         onAccepted: {
-            console.log("You chose: " + fileDialog.fileUrls)
-            fileurl_textfield.text = fileDialog.fileUrl
+            var path = fileDialog.fileUrl.toString();
+            path= path.replace(/^(file:\/{3})|(qrc:\/{2})|(http:\/{2})/,"");
+            fileurl_textfield.text = decodeURIComponent(path);
             fileDialog.close
         }
         onRejected: {
