@@ -5,18 +5,6 @@ import "../controls"
 Item {
     id: settings
 
-    Rectangle {
-        id: menu_view
-        color: "#2c313c"
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        anchors.rightMargin: 0
-        anchors.bottomMargin: 0
-        anchors.leftMargin: 0
-        anchors.topMargin: 0
-
         CustomButton {
             id: customButton
             anchors.left: parent.left
@@ -420,7 +408,6 @@ Item {
             currentIndex: settingsView.currentIndex
 
         }
-    }
 
 }
 
@@ -428,6 +415,6 @@ Item {
 
 /*##^##
 Designer {
-    D{i:0;autoSize:true;height:1024;width:600}D{i:20}D{i:21}
+    D{i:0;autoSize:true;height:1024;width:600}
 }
 ##^##*/

@@ -30,13 +30,14 @@
 import QtQuick 2.15
 import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
+import QtGraphicalEffects 1.0
 
 Window {
     id: mainWindow
     width: 600
     height: 1024
     visible: true
-    color: "#2c313c"
+    color: "#37474f"
     minimumHeight: 800
     maximumHeight: 1024
     minimumWidth: 480
@@ -51,33 +52,97 @@ Window {
 
     Rectangle {
         id: contentpage
-        color: "#2c313c"
-        anchors.fill: parent
-        anchors.rightMargin: 10
-        anchors.leftMargin: 10
-        anchors.bottomMargin: 10
-        anchors.topMargin: 40
+        color: "#00000000"
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: toolSeparator.bottom
+        anchors.bottom: parent.bottom
+        anchors.rightMargin: 0
+        anchors.leftMargin: 0
+        anchors.bottomMargin: 0
+        anchors.topMargin: 0
 
 
         StackView {
             id: stackView
             anchors.fill: parent
+            anchors.topMargin: 0
             wheelEnabled: false
             initialItem:  stackView.push(Qt.resolvedUrl("pages/MainMenu.qml"))
         }
 
     }
+    ColorOverlay{
+            color:"green"
+            transform:rotation
+            antialiasing: true
+        }
 
-    Label {
-        id: label
-        width: 67
-        height: 19
-        text: if(back.printer_status){qsTr("Connect")} else{qsTr("Disconnect")}
+    ToolSeparator {
+        id: toolSeparator
+        height: 12
         anchors.left: parent.left
-        anchors.top: parent.top
-        anchors.leftMargin: 16
-        anchors.topMargin: 10
+        anchors.right: parent.right
+        anchors.top: upper_bar.bottom
+        rightPadding: 10
+        leftPadding: 10
+        bottomPadding: 5
+        topPadding: 5
+        anchors.topMargin: 2
+        anchors.rightMargin: 0
+        anchors.leftMargin: 0
     }
+
+    Row {
+        id: upper_bar
+        height: 33
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: parent.top
+        rightPadding: 10
+        leftPadding: 10
+        layoutDirection: Qt.RightToLeft
+        spacing: 20
+        anchors.topMargin: 15
+        anchors.rightMargin: 15
+        anchors.leftMargin: 15
+
+        Image {
+            id: usb
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            source: "icons/usb.png"
+            antialiasing: true
+            anchors.bottomMargin: 0
+            anchors.topMargin: 0
+            fillMode: Image.PreserveAspectFit
+            ColorOverlay{
+                    anchors.fill: usb
+                    source:usb
+                    color: (back.printer_status) ? "#359610" : "black"
+                }
+        }
+
+        Image {
+            id: iot
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            source: "images/iot.svg"
+            antialiasing: true
+            anchors.bottomMargin: 0
+            anchors.topMargin: 0
+            fillMode: Image.PreserveAspectFit
+            ColorOverlay{
+                    anchors.fill: iot
+                    source:iot
+                    color: (back.mqtt_status) ? "#359610" : "black"
+                }
+        }
+
+
+
+    }
+
     Connections{
         id:back
 
@@ -203,9 +268,16 @@ Window {
 
 
     }
+
     Component.onCompleted: startupFunction();
 
 }
+
+
+
+
+
+
 
 
 

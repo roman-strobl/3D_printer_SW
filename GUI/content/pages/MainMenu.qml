@@ -2,17 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 
 Item {
-    Rectangle {
-        id: menu_view
-        color: "#2c313c"
-        anchors.fill: parent
-        anchors.rightMargin: 0
-        anchors.bottomMargin: 0
-        anchors.leftMargin: 0
-        anchors.topMargin: 0
-        visible: true
-
-        Grid {
+    Grid {
             id: grid_menu
             anchors.fill: parent
             verticalItemAlignment: Grid.AlignVCenter
@@ -28,7 +18,6 @@ Item {
 
             Button {
                 id: btn_connect
-                text: if(!back.printer_status){qsTr("Connect")} else{qsTr("Disconnect")}
                 highlighted: false
                 flat: false
                 enabled: true
@@ -36,6 +25,7 @@ Item {
                 checked: false
                 width: grid_menu.dynamic_width
                 height: grid_menu.dynamic_height
+                text: ""
                 onClicked: {
                     if (!back.printer_status){
                         backend.print_connect()
@@ -68,7 +58,7 @@ Item {
             }
             Button {
                 id: btn_control
-                text: qsTr("Control")
+                text: qsTr("")
                 enabled: back.printer_status
                 leftPadding: 8
                 rightPadding: 8
@@ -92,7 +82,7 @@ Item {
             }
             Button {
                 id: btn_temperature
-                text: qsTr("Temperature")
+                text: qsTr("")
                 enabled: back.printer_status
                 width: grid_menu.dynamic_width
                 height: grid_menu.dynamic_height
@@ -113,7 +103,7 @@ Item {
             }
             Button {
                 id: btn_print
-                text: qsTr("Print")
+                text: qsTr("")
                 enabled: back.printer_status
                 width: grid_menu.dynamic_width
                 height: grid_menu.dynamic_height
@@ -134,7 +124,7 @@ Item {
             }
             Button {
                 id: btn_setting
-                text: qsTr("setting")
+                text: qsTr("")
                 width: grid_menu.dynamic_width
                 height: grid_menu.dynamic_height
                 onClicked: {
@@ -154,7 +144,7 @@ Item {
             }
             Button {
                 id: btn_exit
-                text: qsTr("Exit")
+                text: qsTr("")
                 width: grid_menu.dynamic_width
                 height: grid_menu.dynamic_height
                 onClicked: mainWindow.close()
@@ -171,12 +161,12 @@ Item {
                 }
             }
         }
-    }
+
 
 }
 
 /*##^##
 Designer {
-    D{i:0;autoSize:true;height:974;width:580}D{i:4}D{i:5}D{i:7}D{i:9}D{i:11}D{i:15}
+    D{i:0;autoSize:true;height:974;width:580}
 }
 ##^##*/

@@ -4,16 +4,6 @@ import "../controls"
 import QtQuick.Dialogs 1.0
 
 Item {
-    Rectangle {
-        id: menu_view
-        color: "#2c313c"
-        anchors.fill: parent
-        anchors.rightMargin: 0
-        anchors.bottomMargin: 0
-        anchors.leftMargin: 0
-        anchors.topMargin: 0
-        visible: true
-
         CustomButton {
             id: customButton
             anchors.left: parent.left
@@ -96,7 +86,6 @@ Item {
             currentIndex: printView.currentIndex
 
         }
-    }
 
     FileDialog {
         id: fileDialog

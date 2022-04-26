@@ -3,19 +3,6 @@ import QtQuick.Controls 2.15
 import "../controls"
 
 Item {
-    Rectangle {
-        id: menu_view
-        color: "#2c313c"
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        anchors.rightMargin: 0
-        anchors.bottomMargin: 0
-        anchors.leftMargin: 0
-        anchors.topMargin: 0
-        visible: true
-
         CustomButton {
             id: customButton
             anchors.left: parent.left
@@ -82,7 +69,6 @@ Item {
             }
 
         }
-    }
 }
 
 /*##^##

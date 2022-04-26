@@ -3,16 +3,6 @@ import QtQuick.Controls 2.15
 import "../controls"
 
 Item {
-    Rectangle {
-        id: menu_view
-        color: "#2c313c"
-        anchors.fill: parent
-        anchors.rightMargin: 0
-        anchors.bottomMargin: -6
-        anchors.leftMargin: 0
-        anchors.topMargin: 0
-        visible: true
-
         CustomButton {
             id: customButton
             y: 547
@@ -562,10 +552,9 @@ Item {
 
         }
     }*/
-}
 
 /*##^##
 Designer {
-    D{i:0;autoSize:true;height:1024;width:600}D{i:15}D{i:16}D{i:17}D{i:18}D{i:20}D{i:21}
+    D{i:0;autoSize:true;height:1024;width:600}
 }
 ##^##*/

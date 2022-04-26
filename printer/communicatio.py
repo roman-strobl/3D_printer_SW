@@ -141,6 +141,18 @@ class Printer(object):
         post_event("printer_connection", "DISCONNECTED")
         return "disconnect"
 
+    def print_stop(self):
+        pass
+
+    def print_pause(self):
+        pass
+
+    def print_unpause(self):
+        pass
+
+    def print_resume(self):
+        pass
+
     def command_move_event(self, command: dict):
 
         # Tato část kódu nefunguje pro python verze < 3.10
