@@ -2,6 +2,9 @@ import json
 import os
 from enum import Enum
 
+import requests
+from requests.exceptions import HTTPError
+
 _instance = None
 
 
@@ -83,12 +86,17 @@ default_setting = {
             "auto_connect": False,
         },
         "MES": {
-            "IP_address": "127.0.0.1",
-            "port": 80
+            "IP_address": "192.168.0.116",
+            "port": 80,
+            "url": "http://192.168.0.116:5000/printer/config",
         },
         "GUI": {
             "baudrates": [250000, 115200, 230400, 57600, 38400, 19200, 9600],
-        }
+        },
+        "system": {
+            "status": True,
+            "removal": "manual",
+        },
 }
 
 __location__ = os.path.realpath(
@@ -106,6 +114,7 @@ class SettingType:
 class Settings(object):
 
     setting = {}
+
     def __init__(self, basedir: str = None):
 
         if basedir is None:
@@ -130,6 +139,35 @@ class Settings(object):
         with open("setting.json", "w") as file:
             json.dump(self.setting, file, indent=4)
 
+    def updateSettingFromUrl(self, url: str) -> None:
+        new_setting = self._getJsonFromUrl(url)
+
+        if new_setting == {}:
+            print("Nepodařilo se stáhnout soubor")
+            return
+
+        self.setting = new_setting
+
+        self.update()
+
+    @staticmethod
+    def _getJsonFromUrl(url: str) -> dict:
+        try:
+            r = requests.get(url)
+            if r.status_code != 200:
+                print(f"HTML error code: {r.status_code}")
+                return {}
+        except HTTPError as http_err:
+            print(f'HTTP error occurred: {http_err}')
+            return {}
+        except Exception as err:
+            print(f'Other error occurred: {err}')  # Python 3.6
+            return {}
+        else:
+            print('Success!')
+
+        return r.json()
+
 
 def GetSettingsManager() -> Settings:
     global _instance
@@ -142,6 +180,6 @@ def GetSettingsManager() -> Settings:
 
 
 if __name__ == '__main__':
-
+    URL = 'http://127.0.0.1:5000/printer/config'
     setting = Settings()
-
+    setting.updateSettingFromUrl(URL)

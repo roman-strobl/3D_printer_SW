@@ -13,6 +13,8 @@ from GUI.window import MainWindow
 
 from utils.MQTT import MQTT
 
+from utils.auto_system import StateMachine
+
 if __name__ == "__main__":
     logging.basicConfig(filename='debug.log', encoding='utf-8', level=logging.DEBUG)
     QQuickStyle.setStyle("Material")
@@ -30,4 +32,5 @@ if __name__ == "__main__":
 
     mqtt = MQTT()
     printer = Printer()
+    auto_system = StateMachine()
     sys.exit(app.exec_())

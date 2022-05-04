@@ -24,6 +24,10 @@ regex_Firmware = re.compile(
 regex_cap = re.compile(
     r"(?P<name>\w*):(?P<value>[01])")
 
+class PrinterState(object):
+    IDLE = "idle"
+    PRINTING = "printing"
+    REMOVAL = "removal"
 
 class Printer(object):
     """
@@ -48,7 +52,7 @@ class Printer(object):
 
         self._print_param = {}
 
-        self._state = None
+        self._state = PrinterState.IDLE
         self._M115_state = False
 
         self._logger = logging.getLogger(__name__)
@@ -155,18 +159,6 @@ class Printer(object):
 
     def command_move_event(self, command: dict):
 
-        # Tato část kódu nefunguje pro python verze < 3.10
-        #match command["axis"]:
-        #    case "X":
-        #        self._position_X += command["range"]
-        #        self.put_command(f"G1 X{self._position_X}")
-        #    case "Y":
-        #        self._position_Y += command["range"]
-        #        self.put_command(f"G1 Y{self._position_Y}")
-        #    case "Z":
-        #        self._position_Z += command["range"]
-        #        self.put_command(f"G1 Z{self._position_Z}")
-
         if command["axis"] == "X":
             self._position_X += command["range"]
             self.put_command(f"G1 X{self._position_X}")
@@ -185,14 +177,6 @@ class Printer(object):
             self.put_command(f"G28 {command['axis']}")
 
     def command_temp_event(self, command: dict):
-        # Tato část kódu nefunguje pro python verze < 3.10
-        #match command["tool"]:
-        #    case "T":
-        #        self.put_command(f"M104 S{command['value']}")
-        #    case "B":
-        #        self.put_command(f"M140 S{command['value']}")
-        #    case "C":
-        #        self.put_command(f"M141 S{command['value']}")
         if command["tool"] == "T":
             self.put_command(f"M104 S{command['value']}")
         if command["tool"] == "B":
@@ -349,7 +333,6 @@ class Printer(object):
                 match = re.search(regex_cap, message)
                 self._print_param[match["name"]] = match["value"]
 
-        print("konec")
         self.event.set()
         return
 
@@ -359,6 +342,13 @@ class Printer(object):
             if not self._pause and self._sending_active and not self._is_loading:
                 try:
                     command = self._command_to_send.get()
+                    if command == "start":
+                        self._state = PrinterState.PRINTING
+                        continue
+                    if command == "done":
+                        self._state = PrinterState.IDLE
+                        post_event("system_state", "done")
+                        continue
                     command_to_send = G_Command_with_line(command, n_line)
                     self.event.clear()
                     self._comm.write(command_to_send.process())
@@ -375,8 +365,6 @@ class Printer(object):
                 finally:
                     self._command_to_send.task_done()
                 self.event.wait()
-
-        print("konec sender")
 
     @property
     def port(self):
@@ -419,6 +407,8 @@ class Printer(object):
             print(ex)
             return
 
+        self._command_to_send.put("start")
+
         for line in f:
             f_line = line.strip()  # vymazání zbytečných mezer
             f_line = decommenter(f_line)
@@ -428,6 +418,7 @@ class Printer(object):
 
         f.close()
         print("Loaded")
+        self._command_to_send.put("done")
         self._is_loading = False
 
     def print_from_file_stream(self, file: str):

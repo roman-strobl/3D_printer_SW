@@ -2,3 +2,4 @@ pyserial>=3.5
 paho-mqtt>=1.6.1
 click>=8.0.3
 PySide2>=5.15.2.1
+requests>=2.27.1
