@@ -46,6 +46,8 @@ class MainWindow(QObject):
     getMESIP = Signal(str)
     getMESPort = Signal(int)
 
+    getRemovalDialog = Signal(bool)
+
     extruder_target_temperature: list = [0]
     bed_target_temperature: float = 0
     chamber_target_temperature: float = 0
@@ -64,6 +66,7 @@ class MainWindow(QObject):
         subscribe("position_update", self.update_position)
         subscribe("printer_connection", self.update_printer_status)
         subscribe("MQTT_connection_status", self.mqtt_connection_state)
+        subscribe("GUI_removal_dialog", self.RemovalDialog)
 
     @Slot()
     def Debug(self):
@@ -118,15 +121,12 @@ class MainWindow(QObject):
             self.chamber_target_temperature = data["chamber"][1]
             self.getChamberTargetTemperature.emit(self.chamber_target_temperature)
 
-
     def update_position(self, data):
         try:
             position_list = [data["X"], data["Y"], data["Z"]]
             self.getPositions.emit(position_list)
         except KeyError:
             print("Nejsou zde data")
-
-
 
     @Slot(str, int)
     def send_move_command(self, axis, range):
@@ -232,3 +232,10 @@ class MainWindow(QObject):
     def print(self, file_url: str):
         print(f"Start print {file_url}")
         post_event("printer_start_print", file_url)
+
+    @Slot()
+    def RemovalDone(self):
+        post_event("system_state", "removed")
+
+    def RemovalDialog(self):
+        self.getRemovalDialog.emit(True)

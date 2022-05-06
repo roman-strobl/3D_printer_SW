@@ -58,11 +58,11 @@ class MQTT(object):
 
     def send_temperature(self, data):
         if self.client.is_connected():
-            self.client.publish("printer/temperature", str(data))
+            self.client.publish("printer/HomerOddyseus/temperature", str(data))
 
     def send_position(self, data):
         if self.client.is_connected():
-            self.client.publish("printer/position", str(data))
+            self.client.publish("printer/HomerOddyseus/position", str(data))
 
     def change_settings(self, data: dict):
         if data.get("ip_address") is not None:

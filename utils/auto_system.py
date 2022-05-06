@@ -1,9 +1,8 @@
 import time
-
+import os
 import requests
 import threading
 
-from PySide2.QtCore import QTimer
 from requests import HTTPError
 
 from utils.settings import GetSettingsManager, Settings
@@ -24,6 +23,7 @@ class StateMachine(object):
         self._thread = threading.Thread(target=self.state_loop, name="state_machine_loop")
         self._thread.daemon = True
         self._next_status = threading.Event()
+        self._next_status.clear()
         self._comm_status = False
         self.settings = GetSettingsManager()
 
@@ -32,6 +32,8 @@ class StateMachine(object):
         self._MES_url = self.settings.setting["MES"]["url"]
 
         self._thread.start()
+
+        self._job_id = 0
 
         subscribe("system_state", self.event_handler)
         subscribe("printer_connection", self._printer_status)
@@ -59,6 +61,7 @@ class StateMachine(object):
                 return
 
         self._next_status.wait()
+        self._next_status.clear()
 
     def Request_state(self):
         print("Request_state")
@@ -76,10 +79,18 @@ class StateMachine(object):
         self._next_status.wait()
         self._state = States.REMOVAL
         self._next_status.clear()
+        requests.post("http://192.168.0.116:5000/printer/queue",
+                      json={"id": self._job_id, "status": "done", "printer": "HomerOddyseus"})
+
+        if os.path.exists("job.gcode"):
+            os.remove("job.gcode")
+            print("The file has been deleted successfully")
+        else:
+            print("The file does not exist!")
 
     def Removal_state(self):
         if self._removal_mode == "manual":
-            post_event("GUI_removal_dialog")
+            post_event("GUI_removal_dialog", None)
         print("Removal_state")
         self._next_status.wait()
         self._state = States.IDLE
@@ -87,12 +98,22 @@ class StateMachine(object):
 
     def _getFileFromQueue(self, url: str):
         first_response = self._getJsonFromUrl(url)
+        self._job_id = first_response.get("id")
         if first_response == {}:
             return ""
+        if first_response.get("url") is None:
+            return ""
+        if first_response.get("id") is None:
+            return ""
         file_url = first_response.get("url")
-        print(f"File url: {file_url}")
+        job_id = first_response.get("id")
         if file_url == "":
             return ""
+        if job_id == 0:
+            return ""
+
+        print(f"File url: {file_url}")
+
         file_url = self._MES_url + file_url
         print(f"File url: {file_url}")
         try:
@@ -113,6 +134,14 @@ class StateMachine(object):
         file.write(r.content)
         file.close()
 
+        response = {
+            "id":  self._job_id,
+            "status": "printing",
+            "printer": "HomerOddyseus",
+            "MQTT": "/printer/HomerOddyseus"
+        }
+        requests.post(url, json=response)
+
         return "job.gcode"
 
     @staticmethod
@@ -132,10 +161,17 @@ class StateMachine(object):
         else:
             print('Success!')
 
-        return r.json()
+        try:
+            response = r.json()
+        except Exception as json_error:
+            return {}
+        return response
 
     def event_handler(self, status: str):
         if status == "done":
+            self._next_status.set()
+
+        if status == "removed":
             self._next_status.set()
 
     def _printer_status(self, stat: str):

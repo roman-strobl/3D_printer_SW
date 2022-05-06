@@ -31,6 +31,7 @@ import QtQuick 2.15
 import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
 import QtGraphicalEffects 1.0
+import QtQuick.Dialogs 1.1
 
 Window {
     id: mainWindow
@@ -139,6 +140,16 @@ Window {
                 }
         }
 
+        MessageDialog {
+            id: removalDialog
+            title: "Removal dialog"
+            text: "Please remove printed object and click \"OK\""
+            visible: back.removalDialogVisibility
+            onAccepted: {
+                backend.RemovalDone()
+            }
+        }
+
 
 
     }
@@ -188,7 +199,7 @@ Window {
         property bool mqtt_status: false
         property bool mqtt_auto_connect: false
 
-
+        property bool removalDialogVisibility: false
 
         function onGetPorts(port_list){
             back.port_list = port_list
@@ -264,6 +275,9 @@ Window {
         }
         function onGetMQTT_auto_connect(mqtt_auto_connect){
             back.mqtt_auto_connect = mqtt_auto_connect
+        }
+        function onGetRemovalDialog(dialog_visibility){
+            back.removalDialogVisibility = dialog_visibility
         }
 
 
