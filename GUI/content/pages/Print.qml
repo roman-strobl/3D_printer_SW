@@ -23,7 +23,7 @@ Item {
             anchors.topMargin: 10
             anchors.rightMargin: 0
             anchors.leftMargin: 0
-            currentIndex: 0
+            currentIndex: 2
 
             Item {
                 id: print_file
@@ -69,6 +69,36 @@ Item {
 
             Item {
                 id: scripts
+
+                ComboBox {
+                    id: script_choice
+                    x: 165
+                    y: 8
+                    width: 224
+                    height: 48
+                    model: back.script_list
+                    Component.onCompleted: backend.getScript(script_choice.currentValue)
+                    onActivated: backend.getScript(back.script_list[index])
+
+                }
+
+                TextArea {
+                    id: script_textarea
+                    x: 38
+                    y: 70
+                    width: 522
+                    height: 747
+                    placeholderText: qsTr("Text Area")
+                    text: back.script_text
+                }
+
+                Button {
+                    id: save_button
+                    x: 256
+                    y: 823
+                    text: qsTr("save")
+                    onClicked: backend.saveScript(script_choice.currentValue, script_textarea.text)
+                }
             }
 
 

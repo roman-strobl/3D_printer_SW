@@ -15,6 +15,8 @@ from utils.MQTT import MQTT
 
 from utils.auto_system import StateMachine
 
+import utils.script
+
 if __name__ == "__main__":
     logging.basicConfig(filename='debug.log', encoding='utf-8', level=logging.DEBUG)
     QQuickStyle.setStyle("Material")

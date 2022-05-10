@@ -144,7 +144,6 @@ Window {
             id: removalDialog
             title: "Removal dialog"
             text: "Please remove printed object and click \"OK\""
-            visible: back.removalDialogVisibility
             onAccepted: {
                 backend.RemovalDone()
             }
@@ -173,17 +172,17 @@ Window {
         property bool chamber_status: false
 
         property var extruder_max_temperature: [0]
-        property int bed_max_temperature: 0
-        property int chamber_max_temperature:0
+        property double bed_max_temperature: 0
+        property double chamber_max_temperature:0
 
         property var extruder_target_temperature: [0]
         property var extruder_temperature: [0]
 
-        property int bed_target_temperature: 0
-        property int bed_temperature: 0
+        property double bed_target_temperature: 0
+        property double bed_temperature: 0
 
-        property int chamber_target_temperature: 0
-        property int chamber_temperature: 0
+        property double chamber_target_temperature: 0
+        property double chamber_temperature: 0
 
 
         property var positions: [0,0,0]
@@ -192,6 +191,11 @@ Window {
         property int temp_interval: 4
         property int position_interval: 1
 
+        property bool fan_state: false
+        property int fan_rate: 100
+        property int flow_rate: 100
+        property bool motor_state: false
+
         //-------------MQTT_modul-----------------------
 
         property string mqtt_ip: ""
@@ -199,7 +203,9 @@ Window {
         property bool mqtt_status: false
         property bool mqtt_auto_connect: false
 
-        property bool removalDialogVisibility: false
+        property var script_list: []
+        property string script_text: ""
+
 
         function onGetPorts(port_list){
             back.port_list = port_list
@@ -277,8 +283,16 @@ Window {
             back.mqtt_auto_connect = mqtt_auto_connect
         }
         function onGetRemovalDialog(dialog_visibility){
-            back.removalDialogVisibility = dialog_visibility
+            removalDialog.open()
         }
+
+        function onGetScriptList(script_list){
+            back.script_list = script_list
+        }
+        function onGetScriptText(script_text){
+            back.script_text = script_text
+        }
+
 
 
     }

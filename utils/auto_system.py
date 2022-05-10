@@ -91,6 +91,9 @@ class StateMachine(object):
     def Removal_state(self):
         if self._removal_mode == "manual":
             post_event("GUI_removal_dialog", None)
+        elif self._removal_mode == "auto":
+            post_event("printer_auto_removal", None)
+
         print("Removal_state")
         self._next_status.wait()
         self._state = States.IDLE

@@ -3,6 +3,7 @@ from PySide2.QtCore import QObject, Slot, Signal, QTimer
 import serial.tools.list_ports
 
 from utils.settings import GetSettingsManager
+from utils.script import GetScriptsManager
 
 class MainWindow(QObject):
     # Signáli pro získání nastavení tiskárny
@@ -36,6 +37,9 @@ class MainWindow(QObject):
     getPrinter_temp_interval = Signal(int)
     getPrinter_position_interval = Signal(int)
 
+    getScriptList = Signal(list)
+    getScriptText = Signal(str)
+
     # Signáli pro získání nastavení mqtt
     getMQTTIP = Signal(str)
     getMQTTPort = Signal(int)
@@ -61,7 +65,7 @@ class MainWindow(QObject):
         self.timer.start(2000)
 
         self.settings = GetSettingsManager()
-
+        self.scripts = GetScriptsManager()
         subscribe("temperature_update", self.update_temperature)
         subscribe("position_update", self.update_position)
         subscribe("printer_connection", self.update_printer_status)
@@ -88,6 +92,8 @@ class MainWindow(QObject):
         self.getExtruderMaxTemperature.emit(self.settings.setting["printer"]["extruder"]["max_temp"])
         self.getBedMaxTemperature.emit(self.settings.setting["printer"]["bed"]["max_temp"])
         self.getChamberMaxTemperature.emit(self.settings.setting["printer"]["chamber"]["max_temp"])
+
+        self.getScriptList.emit(self.scripts.get_list_of_scripts())
 
     def updatePort(self):
         """
@@ -136,6 +142,17 @@ class MainWindow(QObject):
         post_event("printer_command_axis", command)
 
     @Slot(str)
+    def getScript(self, name):
+        script = self.scripts.get_script(name)
+        print(script)
+        self.getScriptText.emit(script)
+
+    @Slot(str, str)
+    def saveScript(self, name, g_code):
+        self.scripts.update_script(name, g_code)
+        print(f"name {name}, script {g_code}")
+
+    @Slot(str)
     def send_home_command(self, axis):
         command = {"axis": axis,
                    }
@@ -180,19 +197,6 @@ class MainWindow(QObject):
     def printer_change_num_of_extruders(self, num_of_extruder: int):
         pass
 
-    """
-    @Slot(int)
-    def printer_change_max_extruder_temp(self, max_extruder_temp: int):
-        pass
-
-    @Slot(int)
-    def printer_change_max_chamber_bed(self, max_bed_temp: int):
-        pass
-
-    @Slot(int)
-    def printer_change_max_chamber_temp(self, max_chamber_temp: int):
-        pass
-    """
     @Slot(int)
     def printer_change_temp_interval_report(self, interval: int):
         post_event("printer_set_interval", {"type": "temperature", "interval": interval})
@@ -239,3 +243,17 @@ class MainWindow(QObject):
 
     def RemovalDialog(self):
         self.getRemovalDialog.emit(True)
+
+#todo: přidat posílání do fronty
+
+    @Slot(int)
+    def fan_rate_change(self, value):
+        print(f"fan_rate: {value}")
+
+    @Slot(int)
+    def flow_rate_change(self, value):
+        print(f"flow_rate: {value}")
+
+    @Slot(bool)
+    def motor_state_change(self, state):
+        print(f"motor_state: {state}")

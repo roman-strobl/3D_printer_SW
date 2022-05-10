@@ -61,3 +61,12 @@ echo:  M569 S1 X Y Z
 echo:  M569 S1 I1 Z
 echo:  M569 S1 T0 E
 """
+
+from utils.script import GetScriptsManager
+
+scripts = GetScriptsManager()
+
+script = scripts.get_script("removal")
+
+for line in script.split("\n"):
+    print(line)

@@ -14,6 +14,7 @@ from printer.messages import G_Command_with_line, decommenter
 from utils.Event import post_event, subscribe
 
 from utils.settings import GetSettingsManager
+from utils.script import GetScriptsManager
 
 regex_temp = re.compile(
     r"(?P<tool>B|C|T(?P<toolnum>\d*)):\s*(?P<actual>[-+]?\d*\.?\d+)\s*\/?\s*(?P<target>[-+]?\d*\.?\d+)?")
@@ -24,10 +25,13 @@ regex_Firmware = re.compile(
 regex_cap = re.compile(
     r"(?P<name>\w*):(?P<value>[01])")
 
+
 class PrinterState(object):
     IDLE = "idle"
     PRINTING = "printing"
     REMOVAL = "removal"
+    PAUSE = "pause"
+
 
 class Printer(object):
     """
@@ -40,6 +44,8 @@ class Printer(object):
         """
         self._is_loading = None
         self.settings = GetSettingsManager()
+        self.scripts = GetScriptsManager()
+
         self._extruder_count = None
 
         self._temp: list = []
@@ -49,6 +55,10 @@ class Printer(object):
         self._targetTemp: list = []
         self._targetBedTemp: int = 0
         self._targetChamberTemp: int = 0
+
+        self._targetTemp_pause: list = []
+        self._targetBedTemp_pause: int = 0
+        self._targetChamberTemp_pause: int = 0
 
         self._print_param = {}
 
@@ -99,6 +109,7 @@ class Printer(object):
         subscribe("printer_start_print", self.print_from_file_buffered)
         subscribe("serial_settings", self.serial_change)
         subscribe("printer_set_interval", self.report_interval)
+        subscribe("printer_auto_removal", self.automatically_remove)
 
     def _start_threads(self) -> None:
 
@@ -113,7 +124,6 @@ class Printer(object):
 
         self.monitoring_thread.start()
         self.sending_thread.start()
-
 
     def connect(self) -> str:
         try:
@@ -146,13 +156,23 @@ class Printer(object):
         return "disconnect"
 
     def print_stop(self):
-        pass
+        self._command_to_send = queue.Queue()
+        self._state = PrinterState.IDLE
+        self.add_script_to_queue("on_stop")
+        post_event("system_state", "stop")
 
     def print_pause(self):
-        pass
+        if self._state == PrinterState.PRINTING:
+            self._pause = True
+            self._state = PrinterState.PAUSE
+            self.add_script_to_queue("on_pause")
+            post_event("system_state", "pause")
 
     def print_unpause(self):
-        pass
+        if self._state == PrinterState.PAUSE:
+            self._pause = False
+            self._state = PrinterState.PRINTING
+            post_event("system_state", "unpause")
 
     def print_resume(self):
         pass
@@ -245,15 +265,9 @@ class Printer(object):
                     print(self._print_param)
                     print(self._M115_state)
 
-            print(message)
+            #print(message)
             if message.startswith("resend:"):
                 continue
-
-            # todo: staré řešení s condition.
-            #if message.startswith("ok"):
-            #    with self.condition:
-            #        self.condition.notify_all()
-            #    continue
 
             if message.startswith("ok") or message.startswith(" ok"):
                 self.event.set()
@@ -342,13 +356,21 @@ class Printer(object):
             if not self._pause and self._sending_active and not self._is_loading:
                 try:
                     command = self._command_to_send.get()
+
                     if command == "start":
                         self._state = PrinterState.PRINTING
                         continue
+
                     if command == "done":
                         self._state = PrinterState.IDLE
                         post_event("system_state", "done")
                         continue
+
+                    if command == "removed":
+                        self._state = PrinterState.IDLE
+                        post_event("system_state", "removed")
+                        continue
+
                     command_to_send = G_Command_with_line(command, n_line)
                     self.event.clear()
                     self._comm.write(command_to_send.process())
@@ -408,7 +430,7 @@ class Printer(object):
             return
 
         self._command_to_send.put("start")
-
+        self.add_script_to_queue("start")
         for line in f:
             f_line = line.strip()  # vymazání zbytečných mezer
             f_line = decommenter(f_line)
@@ -417,19 +439,28 @@ class Printer(object):
                 #print(f"příkaz {f_line} byl přidát do fronty")
 
         f.close()
-        print("Loaded")
+        self.add_script_to_queue("end")
         self._command_to_send.put("done")
         self._is_loading = False
 
-    def print_from_file_stream(self, file: str):
-        try:
-            f = open(file)
-            print(f'soubor {file} se podařilo otevřít')
-        except Exception as ex:
-            print(ex)
-            pass
+    def automatically_remove(self):
+        self._state = PrinterState.REMOVAL
+        self.add_script_to_queue("removal", "removed")
 
-        f.close()
+    def add_script_to_queue(self, name: str, indicator: str= None):
+        self._is_loading = True
+        script = self.scripts.get_script(name)
+        if script == "":
+            self._is_loading = False
+            return
+        for line in script.split("\n"):
+            f_line = line.strip()  # vymazání zbytečných mezer
+            f_line = decommenter(f_line)
+            if f_line.isspace() is False and len(f_line) > 0:
+                self._command_to_send.put(f_line)
+        if indicator is not None:
+            self._command_to_send.put(indicator)
+        self._is_loading = False
 
 
 if __name__ == '__main__':
