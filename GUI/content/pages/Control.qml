@@ -3,6 +3,7 @@ import QtQuick.Controls 2.15
 import "../controls"
 
 Item {
+    id: control_item
     CustomButton {
         id: customButton
         y: 547
@@ -32,7 +33,7 @@ Item {
             anchors.left: parent.left
             anchors.top: parent.top
             anchors.topMargin: 33
-            anchors.leftMargin: 64
+            anchors.leftMargin: 40
         }
 
         Label {
@@ -41,7 +42,7 @@ Item {
             text: qsTr("Y: "+ back.positions[1])
             anchors.left: parent.left
             anchors.top: x_label.bottom
-            anchors.leftMargin: 64
+            anchors.leftMargin: 40
             anchors.topMargin: 14
         }
 
@@ -52,13 +53,13 @@ Item {
             anchors.left: parent.left
             anchors.top: y_label.bottom
             anchors.topMargin: 14
-            anchors.leftMargin: 64
+            anchors.leftMargin: 40
         }
 
         Button {
             id: range
-            x: 467
-            y: 833
+            x: 480
+            y: 703
             width: 94
             height: 60
             text: qsTr(range.value+" mm")
@@ -81,8 +82,8 @@ Item {
 
         Button {
             id: home
-            x: 63
-            y: 534
+            x: 45
+            y: 453
             width: 70
             height: 48
             text: qsTr("Home")
@@ -93,8 +94,8 @@ Item {
 
         Button {
             id: home_x
-            x: 63
-            y: 588
+            x: 45
+            y: 507
             width: 70
             height: 48
             text: qsTr("Home X")
@@ -105,8 +106,8 @@ Item {
 
         Button {
             id: home_y
-            x: 65
-            y: 642
+            x: 47
+            y: 561
             width: 70
             height: 48
             text: qsTr("Home Y")
@@ -117,8 +118,8 @@ Item {
 
         Button {
             id: home_z
-            x: 65
-            y: 696
+            x: 47
+            y: 615
             width: 70
             height: 48
             text: qsTr("Home Z")
@@ -129,13 +130,14 @@ Item {
 
         Rectangle {
             id: axis_controller
-            x: 38
-            y: 178
+            y: 142
             width: 275
             height: 275
             color: "#b32e452b"
             radius: 30
             border.width: 2
+            anchors.left: parent.left
+            anchors.leftMargin: 40
 
             Button {
                 id: yplus
@@ -196,13 +198,14 @@ Item {
 
         Rectangle {
             id: z_axis_controller
-            x: 346
-            y: 178
+            y: 142
             width: 95
             height: 275
             color: "#b32e452b"
             radius: 30
             border.width: 2
+            anchors.left: axis_controller.right
+            anchors.leftMargin: 25
 
             Button {
                 id: zplus
@@ -234,18 +237,20 @@ Item {
 
         Rectangle {
             id: e_axis_controller
-            x: 478
-            y: 178
-            width: 95
+            y: 142
             height: 275
             color: "#b32e452b"
             radius: 30
             border.width: 2
+            anchors.left: z_axis_controller.right
+            anchors.right: parent.right
+            anchors.rightMargin: 40
+            anchors.leftMargin: 25
 
             Button {
                 id: eplus
-                x: 13
-                y: 32
+                x: 17
+                y: 25
                 width: 70
                 height: 60
                 text: qsTr("E+")
@@ -256,8 +261,8 @@ Item {
 
             Button {
                 id: eminus
-                x: 13
-                y: 187
+                x: 18
+                y: 194
                 width: 70
                 height: 60
                 text: qsTr("E-")
@@ -269,8 +274,8 @@ Item {
 
         Rectangle {
             id: feedrate_controller
-            x: 174
-            y: 500
+            x: 216
+            y: 451
             width: 370
             height: 97
             color: "#b32e452b"
@@ -306,8 +311,8 @@ Item {
         }
         Button {
             id: fan_button
-            x: 187
-            y: 642
+            x: 195
+            y: 601
             text: (back.fan_state)? qsTr("OFF") : qsTr("ON")
             onClicked: {
                 back.fan_state = !back.fan_state
@@ -319,8 +324,8 @@ Item {
 
         Rectangle {
             id: fan_controller
-            x: 257
-            y: 618
+            x: 299
+            y: 582
             width: 287
             height: 97
             color: "#b32e452b"
@@ -358,8 +363,8 @@ Item {
 
         Button {
             id: motor_button
-            x: 69
-            y: 819
+            x: 40
+            y: 754
             text: (back.motor_state)? qsTr("OFF") : qsTr("ON")
             onClicked: {
                 back.motor_state = !back.motor_state
@@ -368,12 +373,48 @@ Item {
 
         }
 
+        TextField {
+            id: command_field
+            x: 165
+            y: 64
+            width: 294
+            height: 42
+            placeholderText: qsTr("Text Field")
+        }
+
+        Button {
+            id: send_button
+            x: 488
+            y: 64
+            text: qsTr("Send")
+        }
+
+        Label {
+            id: motor_state_label
+            x: 41
+            y: 731
+            width: 78
+            height: 17
+            text: qsTr("Motor state:")
+        }
+
+        Label {
+            id: fan_state_label
+            x: 195
+            y: 578
+            width: 78
+            height: 17
+            text: qsTr("Fan state:")
+        }
+
+
 
     }
 }
 
 /*##^##
 Designer {
-    D{i:0;autoSize:true;formeditorZoom:1.25;height:1024;width:600}
+    D{i:0;autoSize:true;formeditorColor:"#4c4e50";formeditorZoom:0.75;height:1024;width:600}
+D{i:11}D{i:16}D{i:19}D{i:29}D{i:32}
 }
 ##^##*/

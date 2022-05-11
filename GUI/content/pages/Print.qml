@@ -4,6 +4,7 @@ import "../controls"
 import QtQuick.Dialogs 1.1
 
 Item {
+    id: print_item
         CustomButton {
             id: customButton
             anchors.left: parent.left
@@ -23,7 +24,7 @@ Item {
             anchors.topMargin: 10
             anchors.rightMargin: 0
             anchors.leftMargin: 0
-            currentIndex: 2
+            currentIndex: 0
 
             Item {
                 id: print_file
@@ -52,8 +53,8 @@ Item {
 
                 Button {
                     id: button1
-                    x: 205
-                    y: 332
+                    x: 40
+                    y: 171
                     width: 128
                     height: 68
                     text: qsTr("tisk")
@@ -61,10 +62,29 @@ Item {
                         backend.print(fileurl_textfield.text)
                     }
                 }
-            }
 
-            Item {
-                id: print_automatic
+                Button {
+                    id: button2
+                    x: 164
+                    y: 682
+                    text: qsTr("Pause")
+                }
+
+                Button {
+                    id: button3
+                    x: 289
+                    y: 682
+                    text: qsTr("Kill print")
+                }
+
+                ProgressBar {
+                    id: progressBar
+                    x: 55
+                    y: 557
+                    width: 418
+                    height: 66
+                    value: 0.5
+                }
             }
 
             Item {

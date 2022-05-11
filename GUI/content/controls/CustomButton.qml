@@ -6,7 +6,7 @@ Button{
     implicitWidth: 70
     implicitHeight: 60
     onClicked: {
-        stackView.push(Qt.resolvedUrl("../pages/MainMenu.qml"))
+        stackView.replace(Qt.resolvedUrl("../pages/MainMenu.qml"))
     }
     background: Rectangle {
            implicitWidth: 70

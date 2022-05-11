@@ -1,7 +1,9 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import QtQuick.Dialogs 1.1
 
 Item {
+    id: mainmenu_item
     Grid {
             id: grid_menu
             anchors.fill: parent
@@ -66,7 +68,8 @@ Item {
                 width: grid_menu.dynamic_width
                 height: grid_menu.dynamic_height
                 onClicked: {
-                    stackView.push(Qt.resolvedUrl("Control.qml"))
+                    stackView.replace(Qt.resolvedUrl("Control.qml"))
+                    mainmenu_item.visible = false
                 }
 
                 Image {
@@ -87,7 +90,9 @@ Item {
                 width: grid_menu.dynamic_width
                 height: grid_menu.dynamic_height
                 onClicked: {
-                    stackView.push(Qt.resolvedUrl("Temperature.qml"))
+                    stackView.replace(Qt.resolvedUrl("Temperature.qml"))
+                    mainmenu_item.visible = false
+
                 }
 
                 Image {
@@ -108,7 +113,8 @@ Item {
                 width: grid_menu.dynamic_width
                 height: grid_menu.dynamic_height
                 onClicked: {
-                    stackView.push(Qt.resolvedUrl("Print.qml"))
+                    stackView.replace(Qt.resolvedUrl("Print.qml"))
+                    mainmenu_item.visible = false
                 }
 
                 Image {
@@ -128,7 +134,8 @@ Item {
                 width: grid_menu.dynamic_width
                 height: grid_menu.dynamic_height
                 onClicked: {
-                    stackView.push(Qt.resolvedUrl("Settings.qml"))
+                    stackView.replace(Qt.resolvedUrl("Settings.qml"))
+                    mainmenu_item.visible = false
                 }
 
                 Image {
@@ -147,7 +154,7 @@ Item {
                 text: qsTr("")
                 width: grid_menu.dynamic_width
                 height: grid_menu.dynamic_height
-                onClicked: mainWindow.close()
+                onClicked: quitDialog.open()
 
                 Image {
                     id: logout
@@ -159,6 +166,14 @@ Item {
                     anchors.topMargin: 10
                     fillMode: Image.PreserveAspectFit
                 }
+            }
+            MessageDialog {
+                id: quitDialog
+                title: "Quit?"
+                icon: StandardIcon.Question
+                text: "Do you really want to QUIT?"
+                standardButtons: StandardButton.Yes | StandardButton.No
+                onYes: mainWindow.close()
             }
         }
 
