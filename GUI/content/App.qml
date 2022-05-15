@@ -160,18 +160,21 @@ Window {
 
         property string port: ""
         property var port_list: []
+        property bool serial_autoconnect: false
 
         property int baudrate: 0
         property var baudrate_list: []
 
-        property bool printer_status: true
+        property bool printer_status: false
+
+        property string printer_name: ""
 
         property int num_of_extruders: 1
 
         property bool bed_status: true
         property bool chamber_status: false
 
-        property var extruder_max_temperature: [0]
+        property var extruder_max_temperature: 0
         property double bed_max_temperature: 0
         property double chamber_max_temperature:0
 
@@ -203,8 +206,13 @@ Window {
         property bool mqtt_status: false
         property bool mqtt_auto_connect: false
 
+        property string mes_url: ""
+
         property var script_list: []
         property string script_text: ""
+
+        property bool automatic_system_status: false
+        property bool automatic_removal_status: false
 
 
         function onGetPorts(port_list){
@@ -212,6 +220,9 @@ Window {
         }
         function onGetBaudrates(baudrate_list){
             back.baudrate_list = baudrate_list
+        }
+        function onGetSerialAutoconnect(state){
+            back.serial_autoconnect = state
         }
         function onGetPrinterStatus(printer_status){
             back.printer_status = printer_status
@@ -282,6 +293,9 @@ Window {
         function onGetMQTT_auto_connect(mqtt_auto_connect){
             back.mqtt_auto_connect = mqtt_auto_connect
         }
+
+
+
         function onGetRemovalDialog(dialog_visibility){
             removalDialog.open()
         }

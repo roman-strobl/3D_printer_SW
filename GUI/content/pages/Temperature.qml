@@ -32,7 +32,7 @@ Item {
 
             Repeater {
                 id: repeater
-                model: 2
+                model: back.num_of_extruders
 
                 Temperature_box {
                     id: temperature_box_extruder
@@ -45,7 +45,7 @@ Item {
                     visible: true
                     real_tempetature: back.extruder_temperature[index]
                     target_temperature: back.extruder_target_temperature[index]
-                    max_temperature: back.extruder_max_temperature[index]
+                    max_temperature: back.extruder_max_temperature
 
                 }
             }

@@ -65,7 +65,7 @@ default_setting = {
             "position_report_interval": 1,
             "num_of_extruder": 1,
             "extruder": {
-                "max_temp": [250]
+                "max_temp": 250
             },
             "bed": {
                 "state": True,
@@ -75,12 +75,9 @@ default_setting = {
                 "state": False,
                 "max_temp": 50,
             },
-            "reports_interval": {
-                "temperature": 4,
-                "position": 1,
-            }
         },
         "MQTT": {
+            "name": "default_name",
             "IP_address": "127.0.0.1",
             "port": 1883,
             "auto_connect": False,

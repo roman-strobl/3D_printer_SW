@@ -1,6 +1,5 @@
 subscribers = dict()
 
-# todo: vytvořit Event object, ve kterém budou všechny možné eventy.
 
 def subscribe(event_type: str, fn):
     if not event_type in subscribers:
@@ -17,8 +16,3 @@ def post_event(event_type: str, data):
         else:
             fn(data)
 
-
-class Event(object):
-
-    TEMPERATURE = "temperature_update"
-    POSITION = "position_update"

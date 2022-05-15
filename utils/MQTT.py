@@ -25,7 +25,7 @@ class MQTT(object):
         self.settings = GetSettingsManager()
         self.IP_address = self.settings.setting["MQTT"]["IP_address"]
         self.port = self.settings.setting["MQTT"]["port"]
-
+        self.printer_name = self.settings.setting["MQTT"]["name"]
         self.client = paho.Client("printer")
         self.client.on_connect = on_connect
         self.client.on_disconnect = on_disconnect
@@ -58,11 +58,11 @@ class MQTT(object):
 
     def send_temperature(self, data):
         if self.client.is_connected():
-            self.client.publish("printer/HomerOddyseus/temperature", str(data))
+            self.client.publish(f"printer/{self.printer_name}/temperature", str(data))
 
     def send_position(self, data):
         if self.client.is_connected():
-            self.client.publish("printer/HomerOddyseus/position", str(data))
+            self.client.publish(f"printer/{self.printer_name}/position", str(data))
 
     def change_settings(self, data: dict):
         if data.get("ip_address") is not None:
@@ -78,4 +78,9 @@ class MQTT(object):
         if data.get("auto_connect") is not None:
             self.auto_connect = data["auto_connect"]
             self.settings.setting["MQTT"]["auto_connect"] = self.auto_connect
+            self.settings.update()
+
+        if data.get("name") is not None:
+            self.printer_name = data["name"]
+            self.settings.setting["MQTT"]["name"] = self.printer_name
             self.settings.update()

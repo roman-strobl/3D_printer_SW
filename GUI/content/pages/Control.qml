@@ -387,6 +387,12 @@ Item {
             x: 488
             y: 64
             text: qsTr("Send")
+            onClicked: {
+                if (command_field.text != ""){
+                    backend.printer_send_command(command_field.text)
+                    command_field.clear()
+                }
+            }
         }
 
         Label {
@@ -415,6 +421,5 @@ Item {
 /*##^##
 Designer {
     D{i:0;autoSize:true;formeditorColor:"#4c4e50";formeditorZoom:0.75;height:1024;width:600}
-D{i:11}D{i:16}D{i:19}D{i:29}D{i:32}
 }
 ##^##*/

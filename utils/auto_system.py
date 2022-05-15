@@ -27,6 +27,7 @@ class StateMachine(object):
         self._comm_status = False
         self.settings = GetSettingsManager()
 
+        self.printer_name = self.settings.setting["MQTT"]["name"]
         self._status = self.settings.setting["system"]["status"]
         self._removal_mode = self.settings.setting["system"]["removal"]
         self._MES_url = self.settings.setting["MES"]["url"]
@@ -37,6 +38,11 @@ class StateMachine(object):
 
         subscribe("system_state", self.event_handler)
         subscribe("printer_connection", self._printer_status)
+        subscribe("MQTT_settings", self._change_printer_name)
+
+    def _change_printer_name(self, data: dict):
+        if data.get("name") is not None:
+            self.printer_name = data["name"]
 
     def state_loop(self):
         while True:
@@ -80,7 +86,7 @@ class StateMachine(object):
         self._state = States.REMOVAL
         self._next_status.clear()
         requests.post("http://192.168.0.116:5000/printer/queue",
-                      json={"id": self._job_id, "status": "done", "printer": "HomerOddyseus"})
+                      json={"id": self._job_id, "status": "done", "printer": self.printer_name})
 
         if os.path.exists("job.gcode"):
             os.remove("job.gcode")
@@ -140,8 +146,8 @@ class StateMachine(object):
         response = {
             "id":  self._job_id,
             "status": "printing",
-            "printer": "HomerOddyseus",
-            "MQTT": "/printer/HomerOddyseus"
+            "printer": self.printer_name,
+            "MQTT": f"/printer/{self.printer_name}"
         }
         requests.post(url, json=response)
 

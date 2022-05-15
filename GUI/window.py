@@ -13,12 +13,13 @@ class MainWindow(QObject):
     getPort = Signal(str)
     getBaudrate = Signal(int)
 
+    getSerialAutoconnect = Signal(bool)
     getNumOfExtruders = Signal(int)
 
     getBedStatus = Signal(bool)
     getChamberStatus = Signal(bool)
 
-    getExtruderMaxTemperature = Signal(list)
+    getExtruderMaxTemperature = Signal(int)
     getBedMaxTemperature = Signal(int)
     getChamberMaxTemperature = Signal(int)
 
@@ -81,7 +82,7 @@ class MainWindow(QObject):
         """Inicializační funkce pro předání nastavení applikace do QML souboru."""
         self.getPort.emit(self.settings.setting["serial"]["port"])
         self.getBaudrate.emit(self.settings.setting["serial"]["baudrate"])
-
+        self.getSerialAutoconnect.emit(self.settings.setting["serial"]["auto_connect"])
         self.updatePort()
         self.getBaudrates.emit(self.settings.setting["GUI"]["baudrates"])
 
@@ -92,6 +93,9 @@ class MainWindow(QObject):
         self.getExtruderMaxTemperature.emit(self.settings.setting["printer"]["extruder"]["max_temp"])
         self.getBedMaxTemperature.emit(self.settings.setting["printer"]["bed"]["max_temp"])
         self.getChamberMaxTemperature.emit(self.settings.setting["printer"]["chamber"]["max_temp"])
+
+        self.getBedStatus.emit(self.settings.setting["printer"]["bed"]["state"])
+        self.getChamberStatus.emit(self.settings.setting["printer"]["chamber"]["state"])
 
         self.getScriptList.emit(self.scripts.get_list_of_scripts())
 
@@ -193,9 +197,10 @@ class MainWindow(QObject):
         post_event("serial_settings", {"baudrate": baudrate})
         print(f"baudrate: {baudrate}")
 
-    @Slot(int)
-    def printer_change_num_of_extruders(self, num_of_extruder: int):
-        pass
+    @Slot(bool)
+    def serial_change_autoconnect(self, autoconnect: bool):
+        self.settings.setting["serial"]["auto_connect"] = autoconnect
+        self.settings.update()
 
     @Slot(int)
     def printer_change_temp_interval_report(self, interval: int):
@@ -205,7 +210,38 @@ class MainWindow(QObject):
     def printer_change_position_interval_report(self, interval: int):
         post_event("printer_set_interval", {"type": "position", "interval": interval})
 
+    @Slot(bool)
+    def printer_change_bed_status(self, status:bool):
+        print(f"Bed status: {status}")
+        self.settings.setting["printer"]["bed"]["state"] = status
+        self.settings.update()
+
+    @Slot(bool)
+    def printer_change_chamber_status(self, status: bool):
+        print(f"Chamber status: {status}")
+        self.settings.setting["printer"]["chamber"]["state"] = status
+        self.settings.update()
+
+    @Slot(str, int)
+    def printer_change_max_temperature(self, tool: str, value: int):
+        print(f"tool: {tool} max temperature: {value}")
+        if tool == "T":
+            self.settings.setting["printer"]["extruder"]["max_temp"] = value
+            self.settings.update()
+        elif tool == "B":
+            self.settings.setting["printer"]["bed"]["max_temp"] = value
+            self.settings.update()
+        elif tool == "C":
+            self.settings.setting["printer"]["chamber"]["max_temp"] = value
+            self.settings.update()
+
     # komunikace GUI s MQTT modulem
+    @Slot(str)
+    def printer_change_name(self, name: str):
+        print(f"Printer Name: {name}")
+        data = {"name": name}
+        post_event("MQTT_settings", data)
+
     @Slot(str)
     def mqtt_change_ip(self, ip_address: str):
         data = {"ip_address": ip_address}
@@ -233,6 +269,21 @@ class MainWindow(QObject):
         self.getMQTT_status.emit(state)
 
     @Slot(str)
+    def mes_change_url(self, url: str):
+        print(f"MES URL: {url}")
+        #todo: dodělat
+
+    @Slot(bool)
+    def automatic_system_change_status(self, state: bool):
+        print(f"automatic_system_change_status: {state}")
+        # todo: dodělat
+
+    @Slot(bool)
+    def automatic_removal_change_status(self, state: bool):
+        print(f"automatic_removal_change_status: {state}")
+        #todo: dodělat
+
+    @Slot(str)
     def print(self, file_url: str):
         print(f"Start print {file_url}")
         post_event("printer_start_print", file_url)
@@ -249,11 +300,19 @@ class MainWindow(QObject):
     @Slot(int)
     def fan_rate_change(self, value):
         print(f"fan_rate: {value}")
+        #todo: dodělat
 
     @Slot(int)
     def flow_rate_change(self, value):
         print(f"flow_rate: {value}")
+        # todo: dodělat
 
     @Slot(bool)
     def motor_state_change(self, state):
         print(f"motor_state: {state}")
+        # todo: dodělat
+
+    @Slot(str)
+    def printer_send_command(self, command: str):
+        print(f"command: {command}")
+        #todo: dodělat

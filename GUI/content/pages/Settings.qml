@@ -41,10 +41,16 @@ Item {
             }
 
             Switch {
-                id: switch2
+                id: serial_autoconnect_switch
                 x: 407
                 y: 120
                 text: qsTr("Auto connect")
+                checked: back.serial_autoconnect
+                onClicked: {
+                    back.serial_autoconnect = serial_autoconnect_switch.checked
+                    backend.serial_change_autoconnect(back.serial_autoconnect)
+                }
+
             }
 
             ToolSeparator {
@@ -183,9 +189,10 @@ Item {
                 width: 143
                 height: 42
                 visible: true
-                text: back.extruder_max_temperature[0]
+                text: back.extruder_max_temperature
                 onEditingFinished:{
-                    back.extruder_max_temperature[0] = extruder_max_temp.text
+                    back.extruder_max_temperature = extruder_max_temp.text
+                    backend.printer_change_max_temperature("T",back.extruder_max_temperature)
                 }
             }
 
@@ -199,6 +206,7 @@ Item {
                 text: back.bed_max_temperature
                 onEditingFinished:{
                     back.bed_max_temperature = bed_max_temp.text
+                    backend.printer_change_max_temperature("B",back.bed_max_temperature)
                 }
             }
 
@@ -216,6 +224,11 @@ Item {
                 y: 325
                 visible: true
                 text: qsTr("Chamber")
+                checked: back.chamber_status
+                onClicked: {
+                    back.chamber_status = chamber_check_box.checked
+                    backend.printer_change_chamber_status(back.chamber_status)
+                }
             }
 
             Label {
@@ -234,16 +247,26 @@ Item {
                 x: 38
                 y: 325
                 text: qsTr("Bed")
+                checked: back.bed_status
+                onClicked: {
+                    back.bed_status = bed_check_box.checked
+                    backend.printer_change_bed_status(back.bed_status)
+                }
+
             }
 
             TextField {
-                id: bed_max_temp1
+                id: chamber_max_temp
                 x: 304
                 y: 478
                 width: 143
                 height: 42
                 visible: true
-                text: back.bed_max_temperature
+                text: back.chamber_max_temperature
+                onEditingFinished:{
+                    back.chamber_max_temperature = chamber_max_temp.text
+                    backend.printer_change_max_temperature("C",back.chamber_max_temperature)
+                }
             }
 
             Column {
@@ -338,10 +361,10 @@ Item {
                 id: mqtt_auto_connect
                 x: 58
                 y: 348
-                checked: back.mqtt_auto_connect
                 text: qsTr("Autoconnect")
                 anchors.horizontalCenterOffset: -18
                 anchors.horizontalCenter: label.horizontalCenter
+                checked: back.mqtt_auto_connect
                 onClicked: {
                     back.mqtt_auto_connect = mqtt_auto_connect.checked
                     backend.mqtt_auto_connect(back.mqtt_auto_connect)
@@ -405,12 +428,17 @@ Item {
             }
 
             Switch {
-                id: switch1
+                id: automatic_system_switch
                 x: 65
                 y: 703
                 width: 189
                 height: 48
                 text: qsTr("Enable")
+                checked: back.automatic_system_status
+                onClicked: {
+                    back.automatic_system_status = automatic_system_switch.checked
+                    backend.automatic_system_change_status(back.automatic_system_status)
+                }
             }
 
             ToolSeparator {
@@ -431,10 +459,15 @@ Item {
             }
 
             Switch {
-                id: switch3
+                id: automatic_removal_switch
                 x: 65
                 y: 778
                 text: qsTr("Automatic removal")
+                checked: back.automatic_removal_status
+                onClicked: {
+                    back.automatic_removal_status = automatic_removal_switch.checked
+                    backend.automatic_removal_change_status(back.automatic_removal_status)
+                }
             }
 
             TextField {
@@ -446,8 +479,12 @@ Item {
                 visible: true
                 anchors.verticalCenter: mqtt_serverport_label.verticalCenter
                 anchors.verticalCenterOffset: 300
-                enabled: !back.mqtt_status
                 transformOrigin: Item.Center
+                text: back.mes_url
+                onEditingFinished:{
+                    back.mes_url = mes_url.text
+                    backend.mes_change_url(back.mes_url)
+                }
             }
 
             Label {
@@ -466,9 +503,12 @@ Item {
                 y: 75
                 width: 139
                 height: 42
-                text: qsTr(back.mqtt_ip)
-                enabled: !back.mqtt_status
                 hoverEnabled: true
+                text: back.printer_name
+                onEditingFinished:{
+                    back.printer_name = printer_name_textfield.text
+                    backend.printer_change_name(back.printer_name)
+                }
             }
 
         }
@@ -495,7 +535,6 @@ Item {
 
 /*##^##
 Designer {
-    D{i:0;autoSize:true;formeditorColor:"#4c4e50";height:1024;width:600}D{i:35}D{i:38}
-D{i:39}D{i:41}D{i:42}D{i:43}
+    D{i:0;autoSize:true;formeditorColor:"#4c4e50";height:1024;width:600}
 }
 ##^##*/

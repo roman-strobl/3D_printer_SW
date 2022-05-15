@@ -48,15 +48,15 @@ class Printer(object):
 
         self._extruder_count = None
 
-        self._temp: list = []
+        self._temp: list = [0]
         self._bedTemp: int = 0
         self._chamberTemp: int = 0
 
-        self._targetTemp: list = []
+        self._targetTemp: list = [0]
         self._targetBedTemp: int = 0
         self._targetChamberTemp: int = 0
 
-        self._targetTemp_pause: list = []
+        self._targetTemp_pause: list = [0]
         self._targetBedTemp_pause: int = 0
         self._targetChamberTemp_pause: int = 0
 
@@ -74,7 +74,6 @@ class Printer(object):
         self._position_Y = 0.0
         self._position_Z = 0.0
 
-        #todo: zbytečné vědět, jak je tiskárná velká, protože se s tím vůbec nepracuje
         self._dimension_X = 235
         self._dimension_Y = 235
         self._dimension_Z = 240
@@ -91,18 +90,20 @@ class Printer(object):
         self.sending_thread = None
         self.monitoring_thread = None
 
-        self.condition = threading.Condition()
         self.event = threading.Event()
 
         self._comm = serial.Serial(timeout=0.5)
         self._comm.setPort(self.settings.setting["serial"]["port"])
         self._comm.baudrate = self.settings.setting["serial"]["baudrate"]
 
+        self._auto_connect = self.settings.setting["serial"]["auto_connect"]
+
         self._autoreport_position = False
         self._autoreport_temp = False
 
         subscribe("printer_connect", self.connect)
         subscribe("printer_disconnect", self.disconnect)
+        subscribe("printer_command", self.command_from_GUI)
         subscribe("printer_command_axis", self.command_move_event)
         subscribe("printer_command_home", self.command_home_event)
         subscribe("printer_command_temp", self.command_temp_event)
@@ -110,6 +111,9 @@ class Printer(object):
         subscribe("serial_settings", self.serial_change)
         subscribe("printer_set_interval", self.report_interval)
         subscribe("printer_auto_removal", self.automatically_remove)
+
+        if self._auto_connect is True:
+            self.connect()
 
     def _start_threads(self) -> None:
 
@@ -125,21 +129,18 @@ class Printer(object):
         self.monitoring_thread.start()
         self.sending_thread.start()
 
-    def connect(self) -> str:
+    def connect(self) -> None:
         try:
             self._comm.open()
             time.sleep(1)
         except Exception as ex:
-            return str(ex)
+            post_event("Serial_ERROR", ex)
+            print(ex)
         self._start_threads()
-
         time.sleep(2)
-
         self._command_to_send.put("M110")
         self._command_to_send.put("M115")
-
         post_event("printer_connection", "CONNECTED")
-        print("connected")
 
     def disconnect(self) -> str:
 
@@ -176,6 +177,9 @@ class Printer(object):
 
     def print_resume(self):
         pass
+
+    def command_from_GUI(self, command):
+        self.put_command(command)
 
     def command_move_event(self, command: dict):
 
@@ -218,9 +222,13 @@ class Printer(object):
     def report_interval(self, data: dict):
         if data["type"] == "temperature":
             self._set_autoreport_temp(data.get("interval"))
+            self.settings.setting["printer"]["temperature_report_interval"] = data.get("interval")
+            self.settings.update()
 
         if data["type"] == "position":
             self._set_autoreport_position(data.get("interval"))
+            self.settings.setting["printer"]["position_report_interval"] = data.get("interval")
+            self.settings.update()
 
     def _reader(self):
         if self._comm is None:
@@ -257,11 +265,16 @@ class Printer(object):
                     self._M115_state = False
 
                     if self._print_param.get("AUTOREPORT_TEMP") == "1":
-                        self._set_autoreport_temp()
+                        self._set_autoreport_temp(self.settings.setting["printer"]["temperature_report_interval"])
 
                     if self._print_param.get("AUTOREPORT_POS") == "1":
-                        self._set_autoreport_position()
+                        self._set_autoreport_position(self.settings.setting["printer"]["position_report_interval"])
 
+                    if self._print_param.get("EXTRUDER_COUNT") == "1":
+                        self._extruder_count = int(self._print_param["EXTRUDER_COUNT"])
+                        for i in range(self._extruder_count-1):
+                            self._temp.append(0)
+                            self._targetTemp.append(0)
                     print(self._print_param)
                     print(self._M115_state)
 
@@ -304,13 +317,17 @@ class Printer(object):
                         result[tool] = (actual, target)
                     except ValueError:
                         print("Vyskytla se chyba")
-                        pass
-
-                if "T" in result:
-                    self._temp, self._targetTemp = result["T"]
-
-                elif "T0" in result:
-                    self._temp, self._targetTemp = result["T0"]
+                if self._extruder_count == 1:
+                    if "T" in result:
+                        self._temp[0], self._targetTemp[0] = result["T"]
+                    elif "T0" in result:
+                        self._temp[0], self._targetTemp[0] = result["T0"]
+                else:
+                    if "T" in result:
+                        self._temp[0], self._targetTemp[0] = result["T"]
+                    for i in range(self._extruder_count-1):
+                        if f"T{i}" in result:
+                            self._temp[i+1], self._targetTemp[i+1] = result["T"]
 
                 if "B" in result:
                     self._bedTemp, self._targetBedTemp = result["B"]
@@ -353,7 +370,9 @@ class Printer(object):
     def _sender(self):
         n_line = 1
         while self._sending_active:
-            if not self._pause and self._sending_active and not self._is_loading:
+            if not self._pause and \
+                    self._sending_active and \
+                    not self._is_loading:
                 try:
                     command = self._command_to_send.get()
 
@@ -427,10 +446,11 @@ class Printer(object):
             print(f'soubor {file} se podařilo otevřít')
         except Exception as ex:
             print(ex)
+            self._is_loading = False
             return
 
         self._command_to_send.put("start")
-        self.add_script_to_queue("start")
+        self.add_script_to_queue("start", empty_script=True)
         for line in f:
             f_line = line.strip()  # vymazání zbytečných mezer
             f_line = decommenter(f_line)
@@ -439,7 +459,7 @@ class Printer(object):
                 #print(f"příkaz {f_line} byl přidát do fronty")
 
         f.close()
-        self.add_script_to_queue("end")
+        self.add_script_to_queue("end", empty_script=True)
         self._command_to_send.put("done")
         self._is_loading = False
 
@@ -447,11 +467,11 @@ class Printer(object):
         self._state = PrinterState.REMOVAL
         self.add_script_to_queue("removal", "removed")
 
-    def add_script_to_queue(self, name: str, indicator: str= None):
+    def add_script_to_queue(self, name: str, indicator: str = None, empty_script: bool = False):
         self._is_loading = True
         script = self.scripts.get_script(name)
         if script == "":
-            self._is_loading = False
+            self._is_loading = empty_script
             return
         for line in script.split("\n"):
             f_line = line.strip()  # vymazání zbytečných mezer
