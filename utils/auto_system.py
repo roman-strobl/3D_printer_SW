@@ -6,7 +6,7 @@ import threading
 from requests import HTTPError
 
 from utils.settings import GetSettingsManager, Settings
-from utils.Event import post_event, subscribe
+from utils.Event import fire_event, subscribe
 
 
 class States(object):
@@ -76,7 +76,7 @@ class StateMachine(object):
             time.sleep(5)
             return
 
-        post_event("printer_start_print", file)
+        fire_event("printer_start_print", file)
         print(f"Tisk souboru {file}")
         self._state = States.PRINTING
 
@@ -96,9 +96,9 @@ class StateMachine(object):
 
     def Removal_state(self):
         if self._removal_mode == "manual":
-            post_event("GUI_removal_dialog", None)
+            fire_event("GUI_removal_dialog", None)
         elif self._removal_mode == "auto":
-            post_event("printer_auto_removal", None)
+            fire_event("printer_auto_removal", None)
 
         print("Removal_state")
         self._next_status.wait()

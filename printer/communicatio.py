@@ -11,7 +11,7 @@ import logging
 
 from printer.messages import G_Command_with_line, decommenter
 
-from utils.Event import post_event, subscribe
+from utils.Event import fire_event, subscribe
 
 from utils.settings import GetSettingsManager
 from utils.script import GetScriptsManager
@@ -134,13 +134,13 @@ class Printer(object):
             self._comm.open()
             time.sleep(1)
         except Exception as ex:
-            post_event("Serial_ERROR", ex)
+            fire_event("Serial_ERROR", ex)
             print(ex)
         self._start_threads()
         time.sleep(2)
         self._command_to_send.put("M110")
         self._command_to_send.put("M115")
-        post_event("printer_connection", "CONNECTED")
+        fire_event("printer_connection", "CONNECTED")
 
     def disconnect(self) -> str:
 
@@ -153,27 +153,27 @@ class Printer(object):
         self._command_to_send = queue.Queue()
 
         self._comm.close()
-        post_event("printer_connection", "DISCONNECTED")
+        fire_event("printer_connection", "DISCONNECTED")
         return "disconnect"
 
     def print_stop(self):
         self._command_to_send = queue.Queue()
         self._state = PrinterState.IDLE
         self.add_script_to_queue("on_stop")
-        post_event("system_state", "stop")
+        fire_event("system_state", "stop")
 
     def print_pause(self):
         if self._state == PrinterState.PRINTING:
             self._pause = True
             self._state = PrinterState.PAUSE
             self.add_script_to_queue("on_pause")
-            post_event("system_state", "pause")
+            fire_event("system_state", "pause")
 
     def print_unpause(self):
         if self._state == PrinterState.PAUSE:
             self._pause = False
             self._state = PrinterState.PRINTING
-            post_event("system_state", "unpause")
+            fire_event("system_state", "unpause")
 
     def print_resume(self):
         pass
@@ -237,7 +237,7 @@ class Printer(object):
         try:
             string = self._comm.readline()
         except Exception as ex:
-            post_event("Serial_ERROR", ex)
+            fire_event("Serial_ERROR", ex)
             print(f"Naskytla se chyba {ex}")
             self.disconnect()
 
@@ -295,7 +295,7 @@ class Printer(object):
 
                     data[match["axis"]] = match["value"]
                 #self.client.publish("printer/position", str(data))
-                post_event("position_update", data)
+                fire_event("position_update", data)
                 continue
 
             if " T:" in message or " T0:" in message or " B:" in message or " C:" in message:
@@ -341,7 +341,7 @@ class Printer(object):
                         "chamber": [self._chamberTemp, self._targetChamberTemp],
                         }
                 # self.client.publish("printer/temperature", str(data))
-                post_event("temperature_update", data)
+                fire_event("temperature_update", data)
                 continue
 
             if message.startswith("FIRMWARE_NAME:"):
@@ -382,12 +382,12 @@ class Printer(object):
 
                     if command == "done":
                         self._state = PrinterState.IDLE
-                        post_event("system_state", "done")
+                        fire_event("system_state", "done")
                         continue
 
                     if command == "removed":
                         self._state = PrinterState.IDLE
-                        post_event("system_state", "removed")
+                        fire_event("system_state", "removed")
                         continue
 
                     command_to_send = G_Command_with_line(command, n_line)
@@ -400,7 +400,7 @@ class Printer(object):
                 except queue.Empty:
                     continue
                 except Exception as ex:
-                    post_event("Serial_ERROR", ex)
+                    fire_event("Serial_ERROR", ex)
                     print(f"Naskytla se chyba {ex}")
                     self.disconnect()
                 finally:

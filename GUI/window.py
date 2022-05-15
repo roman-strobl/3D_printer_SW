@@ -1,4 +1,4 @@
-from utils.Event import subscribe, post_event
+from utils.Event import subscribe, fire_event
 from PySide2.QtCore import QObject, Slot, Signal, QTimer
 import serial.tools.list_ports
 
@@ -143,7 +143,7 @@ class MainWindow(QObject):
         command = {"axis": axis,
                    "range": range
                    }
-        post_event("printer_command_axis", command)
+        fire_event("printer_command_axis", command)
 
     @Slot(str)
     def getScript(self, name):
@@ -160,7 +160,7 @@ class MainWindow(QObject):
     def send_home_command(self, axis):
         command = {"axis": axis,
                    }
-        post_event("printer_command_home", command)
+        fire_event("printer_command_home", command)
 
     @Slot(str, int)
     def send_temp_command(self, tool, value):
@@ -168,15 +168,15 @@ class MainWindow(QObject):
                    "value": value,
                    }
         print(command)
-        post_event("printer_command_temp", command)
+        fire_event("printer_command_temp", command)
 
     @Slot()
     def print_connect(self):
-        post_event("printer_connect", None)
+        fire_event("printer_connect", None)
 
     @Slot()
     def print_disconnect(self):
-        post_event("printer_disconnect", None)
+        fire_event("printer_disconnect", None)
 
     def update_printer_status(self, status: str):
         if status == "CONNECTED":
@@ -189,12 +189,12 @@ class MainWindow(QObject):
 
     @Slot(str)
     def serial_change_port(self, port: str):
-        post_event("serial_settings", {"port": port})
+        fire_event("serial_settings", {"port": port})
         print(f"port: {port}")
 
     @Slot(int)
     def serial_change_baudrate(self, baudrate: int):
-        post_event("serial_settings", {"baudrate": baudrate})
+        fire_event("serial_settings", {"baudrate": baudrate})
         print(f"baudrate: {baudrate}")
 
     @Slot(bool)
@@ -204,11 +204,11 @@ class MainWindow(QObject):
 
     @Slot(int)
     def printer_change_temp_interval_report(self, interval: int):
-        post_event("printer_set_interval", {"type": "temperature", "interval": interval})
+        fire_event("printer_set_interval", {"type": "temperature", "interval": interval})
 
     @Slot(int)
     def printer_change_position_interval_report(self, interval: int):
-        post_event("printer_set_interval", {"type": "position", "interval": interval})
+        fire_event("printer_set_interval", {"type": "position", "interval": interval})
 
     @Slot(bool)
     def printer_change_bed_status(self, status:bool):
@@ -240,30 +240,30 @@ class MainWindow(QObject):
     def printer_change_name(self, name: str):
         print(f"Printer Name: {name}")
         data = {"name": name}
-        post_event("MQTT_settings", data)
+        fire_event("MQTT_settings", data)
 
     @Slot(str)
     def mqtt_change_ip(self, ip_address: str):
         data = {"ip_address": ip_address}
-        post_event("MQTT_settings", data)
+        fire_event("MQTT_settings", data)
 
     @Slot(str)
     def mqtt_change_port(self, port: int):
         data = {"port": port}
-        post_event("MQTT_settings", data)
+        fire_event("MQTT_settings", data)
 
     @Slot()
     def mqtt_connect(self):
-        post_event("MQTT_connection", True)
+        fire_event("MQTT_connection", True)
 
     @Slot()
     def mqtt_disconnect(self):
-        post_event("MQTT_connection", False)
+        fire_event("MQTT_connection", False)
 
     @Slot(bool)
     def mqtt_auto_connect(self, state: bool):
         data = {"auto_connect": state}
-        post_event("MQTT_settings", data)
+        fire_event("MQTT_settings", data)
 
     def mqtt_connection_state(self, state: bool):
         self.getMQTT_status.emit(state)
@@ -286,11 +286,11 @@ class MainWindow(QObject):
     @Slot(str)
     def print(self, file_url: str):
         print(f"Start print {file_url}")
-        post_event("printer_start_print", file_url)
+        fire_event("printer_start_print", file_url)
 
     @Slot()
     def RemovalDone(self):
-        post_event("system_state", "removed")
+        fire_event("system_state", "removed")
 
     def RemovalDialog(self):
         self.getRemovalDialog.emit(True)

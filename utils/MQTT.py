@@ -1,20 +1,20 @@
 
 import paho.mqtt.client as paho
 from utils.settings import GetSettingsManager
-from utils.Event import subscribe, post_event
+from utils.Event import subscribe, fire_event
 
 
 def on_disconnect(client, userdata, rc):
     if rc != 0:
         print("Unexpected disconnection.")
     print("Disconnect")
-    post_event("MQTT_connection_status", False)
+    fire_event("MQTT_connection_status", False)
 
 
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         print("MQTT připojeno")
-        post_event("MQTT_connection_status", True)
+        fire_event("MQTT_connection_status", True)
     else:
         print("MQTT nepřipojeno")
 
