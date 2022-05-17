@@ -117,12 +117,12 @@ class MainWindow(QObject):
 
     def update_temperature(self, data):
         #todo: při posílání teploty extruderu rozdělit cílovou a reálnou
-        self.getExtruderTemperature.emit(data["tools"])
+        self.getExtruderTemperature.emit(data["tools"][0])
         self.getBedTemperature.emit(data["bed"][0])
         self.getChamberTemperature.emit(data["chamber"][0])
 
-        if data["tools"][1] != self.extruder_target_temperature[0]:
-            self.extruder_target_temperature[0] = data["tools"][1]
+        if data["tools"][1] != self.extruder_target_temperature:
+            self.extruder_target_temperature = data["tools"][1]
             self.getExtruderTargetTemperature.emit(self.extruder_target_temperature)
         if data["bed"][1] != self.bed_target_temperature:
             self.bed_target_temperature = data["bed"][1]
@@ -285,6 +285,9 @@ class MainWindow(QObject):
 
     @Slot(str)
     def print(self, file_url: str):
+        import platform
+        if platform.system() == "Linux":
+            file_url = "/" + file_url
         print(f"Start print {file_url}")
         fire_event("printer_start_print", file_url)
 

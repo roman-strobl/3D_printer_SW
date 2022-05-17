@@ -28,41 +28,45 @@ Item {
 
         Label {
             id: x_label
-            color: "#ffffff"
+            color: "#000000"
             text: qsTr("X: "+ back.positions[0])
             anchors.left: parent.left
             anchors.top: parent.top
+            font.pointSize: 14
             anchors.topMargin: 33
             anchors.leftMargin: 40
         }
 
         Label {
             id: y_label
-            color: "#ffffff"
+            color: "#000000"
             text: qsTr("Y: "+ back.positions[1])
             anchors.left: parent.left
             anchors.top: x_label.bottom
+            font.pointSize: 14
             anchors.leftMargin: 40
             anchors.topMargin: 14
         }
 
         Label {
             id: z_label
-            color: "#ffffff"
+            color: "#000000"
             text: qsTr("Z: "+ back.positions[2])
             anchors.left: parent.left
             anchors.top: y_label.bottom
+            font.pointSize: 14
             anchors.topMargin: 14
             anchors.leftMargin: 40
         }
 
         Button {
             id: range
-            x: 480
+            x: 466
             y: 703
-            width: 94
+            width: 108
             height: 60
             text: qsTr(range.value+" mm")
+            font.pointSize: 15
 
             property var range_list: [0.1,1,5,10]
             property int range_current: 0
@@ -87,6 +91,7 @@ Item {
             width: 70
             height: 48
             text: qsTr("Home")
+            font.pointSize: 14
             onClicked: {
                 backend.send_home_command("all")
             }
@@ -96,9 +101,10 @@ Item {
             id: home_x
             x: 45
             y: 507
-            width: 70
+            width: 88
             height: 48
             text: qsTr("Home X")
+            font.pointSize: 14
             onClicked: {
                 backend.send_home_command("X")
             }
@@ -108,9 +114,10 @@ Item {
             id: home_y
             x: 47
             y: 561
-            width: 70
+            width: 86
             height: 48
             text: qsTr("Home Y")
+            font.pointSize: 14
             onClicked: {
                 backend.send_home_command("Y")
             }
@@ -120,9 +127,10 @@ Item {
             id: home_z
             x: 47
             y: 615
-            width: 70
+            width: 86
             height: 48
             text: qsTr("Home Z")
+            font.pointSize: 14
             onClicked: {
                 backend.send_home_command("Z")
             }
@@ -144,6 +152,7 @@ Item {
                 width: 75
                 height: 75
                 text: qsTr("Y+")
+                font.pointSize: 15
                 anchors.top: parent.top
                 anchors.topMargin: 10
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -159,6 +168,7 @@ Item {
                 text: qsTr("X-")
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.left: parent.left
+                font.pointSize: 15
                 anchors.leftMargin: 10
                 onClicked: {
                     backend.send_move_command("X",-range.value)
@@ -171,6 +181,7 @@ Item {
                 width: 75
                 height: 75
                 text: qsTr("Y-")
+                font.pointSize: 15
                 anchors.bottom: parent.bottom
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.bottomMargin: 10
@@ -185,6 +196,7 @@ Item {
                 width: 75
                 height: 75
                 text: qsTr("X+")
+                font.pointSize: 15
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.right: parent.right
                 anchors.rightMargin: 10
@@ -212,6 +224,7 @@ Item {
                 width: 70
                 height: 60
                 text: qsTr("Z+")
+                font.pointSize: 15
                 anchors.top: parent.top
                 anchors.topMargin: 25
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -226,6 +239,7 @@ Item {
                 width: 70
                 height: 60
                 text: qsTr("Z-")
+                font.pointSize: 15
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: 25
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -253,6 +267,7 @@ Item {
                 y: 25
                 width: 70
                 height: 60
+                font.pointSize: 15
                 text: qsTr("E+")
                 onClicked: {
                     backend.send_move_command("E",range.value)
@@ -265,6 +280,7 @@ Item {
                 y: 194
                 width: 70
                 height: 60
+                font.pointSize: 15
                 text: qsTr("E-")
                 onClicked: {
                     backend.send_move_command("E",-range.value)
@@ -305,6 +321,7 @@ Item {
                 text: qsTr("Feedrate: "+feedrate_slider.value+"%")
                 anchors.left: parent.left
                 anchors.top: parent.top
+                font.pointSize: 15
                 anchors.topMargin: 8
                 anchors.leftMargin: 26
             }
@@ -314,6 +331,7 @@ Item {
             x: 195
             y: 601
             text: (back.fan_state)? qsTr("OFF") : qsTr("ON")
+            font.pointSize: 15
             onClicked: {
                 back.fan_state = !back.fan_state
                 if (back.fan_state){
@@ -356,6 +374,7 @@ Item {
                 text: qsTr("Fan: "+fan_slider.value+"%")
                 anchors.left: parent.left
                 anchors.top: parent.top
+                font.pointSize: 15
                 anchors.topMargin: 8
                 anchors.leftMargin: 26
             }
@@ -366,6 +385,7 @@ Item {
             x: 40
             y: 754
             text: (back.motor_state)? qsTr("OFF") : qsTr("ON")
+            font.pointSize: 15
             onClicked: {
                 back.motor_state = !back.motor_state
                 backend.motor_state_change(back.motor_state)
@@ -375,8 +395,8 @@ Item {
 
         TextField {
             id: command_field
-            x: 165
-            y: 64
+            x: 179
+            y: 70
             width: 294
             height: 42
             placeholderText: qsTr("Text Field")
@@ -399,18 +419,20 @@ Item {
             id: motor_state_label
             x: 41
             y: 731
-            width: 78
-            height: 17
+            width: 112
+            height: 24
             text: qsTr("Motor state:")
+            font.pointSize: 15
         }
 
         Label {
             id: fan_state_label
             x: 195
             y: 578
-            width: 78
-            height: 17
+            width: 98
+            height: 25
             text: qsTr("Fan state:")
+            font.pointSize: 15
         }
 
 
@@ -420,6 +442,6 @@ Item {
 
 /*##^##
 Designer {
-    D{i:0;autoSize:true;formeditorColor:"#4c4e50";formeditorZoom:0.75;height:1024;width:600}
+    D{i:0;autoSize:true;formeditorColor:"#4c4e50";height:1024;width:600}
 }
 ##^##*/

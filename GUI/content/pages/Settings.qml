@@ -30,12 +30,11 @@ Item {
             Text {
                 id: text1
                 x: 237
-                width: 126
+                width: 186
                 height: 33
-                color: "#ff0000"
                 text: qsTr("Printer Settings")
                 anchors.top: parent.top
-                font.pixelSize: 17
+                font.pointSize: 20
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.topMargin: 8
             }
@@ -286,14 +285,15 @@ Item {
             id: mqttSetting
             Text {
                 id: text2
-                width: 69
-                height: 41
-                color: "#ff0000"
+                width: 77
+                height: 38
+                color: "#000000"
                 text: qsTr("MQTT")
                 anchors.top: parent.top
-                font.pixelSize: 23
+                anchors.horizontalCenterOffset: 1
+                font.pointSize: 20
                 anchors.horizontalCenter: parent.horizontalCenter
-                anchors.topMargin: 10
+                anchors.topMargin: 16
             }
 
             Label {
@@ -362,6 +362,7 @@ Item {
                 x: 58
                 y: 348
                 text: qsTr("Autoconnect")
+                font.pointSize: 15
                 anchors.horizontalCenterOffset: -18
                 anchors.horizontalCenter: label.horizontalCenter
                 checked: back.mqtt_auto_connect
@@ -413,14 +414,18 @@ Item {
             Label {
                 id: label3
                 y: 458
+                width: 57
+                height: 33
+                color: "#000000"
                 text: qsTr("MES")
+                font.pointSize: 20
                 anchors.horizontalCenter: parent.horizontalCenter
             }
 
             Label {
                 id: mes_ip_label
                 x: 71
-                y: 513
+                y: 540
                 width: 57
                 height: 34
                 text: qsTr("URL:")
@@ -434,6 +439,7 @@ Item {
                 width: 189
                 height: 48
                 text: qsTr("Enable")
+                font.pointSize: 15
                 checked: back.automatic_system_status
                 onClicked: {
                     back.automatic_system_status = automatic_system_switch.checked
@@ -453,8 +459,12 @@ Item {
             Label {
                 id: label4
                 y: 646
+                width: 214
+                height: 33
                 visible: true
+                color: "#000000"
                 text: qsTr("Automatic system")
+                font.pointSize: 20
                 anchors.horizontalCenter: parent.horizontalCenter
             }
 
@@ -463,6 +473,7 @@ Item {
                 x: 65
                 y: 778
                 text: qsTr("Automatic removal")
+                font.pointSize: 15
                 checked: back.automatic_removal_status
                 onClicked: {
                     back.automatic_removal_status = automatic_removal_switch.checked
@@ -478,7 +489,7 @@ Item {
                 height: 42
                 visible: true
                 anchors.verticalCenter: mqtt_serverport_label.verticalCenter
-                anchors.verticalCenterOffset: 300
+                anchors.verticalCenterOffset: 323
                 transformOrigin: Item.Center
                 text: back.mes_url
                 onEditingFinished:{

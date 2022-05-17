@@ -35,14 +35,11 @@ class Scripts(object):
 
     def get_script(self, name: str) -> str:
         g_code = ""
-
         list_index = 10
-
         for index, file_name in enumerate(self.script_list):
             split = file_name.split(".")
             if name == split[0]:
                 list_index = index
-
         if list_index < len(self.script_list):
             try:
                 file = open(os.path.join(SCRIPT_DIR, self.script_list[list_index]), "r")
@@ -59,12 +56,10 @@ class Scripts(object):
 
     def update_script(self, name: str, g_code: str):
         list_index = 10 # zde je vetší číslo, aby když program projede for cyklus a nenajde jméno souboru, tak jsem mohl zjistit chybu
-
         for index, file_name in enumerate(self.script_list):
             split = file_name.split(".") # zde rozdělím, ať hledám soubor bez koncovky
             if name == split[0]:
                 list_index = index
-
         if list_index < len(self.script_list):
             try:
                 file = open(os.path.join(SCRIPT_DIR, self.script_list[list_index]), "w")
@@ -79,7 +74,6 @@ class Scripts(object):
 
 def GetScriptsManager() -> Scripts:
     global _instance_script
-
     if _instance_script is not None:
         return _instance_script
     else:

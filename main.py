@@ -33,6 +33,7 @@ if __name__ == "__main__":
         sys.exit(-1)
 
     mqtt = MQTT()
-    printer = Printer()
     auto_system = StateMachine()
+    printer = Printer()
+
     sys.exit(app.exec_())

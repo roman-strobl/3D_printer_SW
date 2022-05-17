@@ -84,6 +84,7 @@ class Printer(object):
         self._pause = False
 
         self._command_to_send = queue.Queue()
+        self._command_to_send_priority = queue.Queue()
 
         self._sending_active = False
         self._monitoring_active = False
@@ -138,8 +139,8 @@ class Printer(object):
             print(ex)
         self._start_threads()
         time.sleep(2)
-        self._command_to_send.put("M110")
-        self._command_to_send.put("M115")
+        self.put_command("M110")
+        self.put_command("M115")
         fire_event("printer_connection", "CONNECTED")
 
     def disconnect(self) -> str:
@@ -151,6 +152,7 @@ class Printer(object):
         self.monitoring_thread = None
 
         self._command_to_send = queue.Queue()
+        self._command_to_send_priority = queue.Queue()
 
         self._comm.close()
         fire_event("printer_connection", "DISCONNECTED")
@@ -159,14 +161,14 @@ class Printer(object):
     def print_stop(self):
         self._command_to_send = queue.Queue()
         self._state = PrinterState.IDLE
-        self.add_script_to_queue("on_stop")
+        self.add_script_to_queue("on_stop", priority=True)
         fire_event("system_state", "stop")
 
     def print_pause(self):
         if self._state == PrinterState.PRINTING:
             self._pause = True
             self._state = PrinterState.PAUSE
-            self.add_script_to_queue("on_pause")
+            self.add_script_to_queue("on_pause", priority=True)
             fire_event("system_state", "pause")
 
     def print_unpause(self):
@@ -176,7 +178,7 @@ class Printer(object):
             fire_event("system_state", "unpause")
 
     def print_resume(self):
-        pass
+        raise NotImplementedError
 
     def command_from_GUI(self, command):
         self.put_command(command)
@@ -201,7 +203,7 @@ class Printer(object):
             self.put_command(f"G28 {command['axis']}")
 
     def command_temp_event(self, command: dict):
-        if command["tool"] == "T":
+        if "T" in command["tool"]:
             self.put_command(f"M104 S{command['value']}")
         if command["tool"] == "B":
             self.put_command(f"M140 S{command['value']}")
@@ -374,8 +376,13 @@ class Printer(object):
                     self._sending_active and \
                     not self._is_loading:
                 try:
-                    command = self._command_to_send.get()
-
+                    command = self._command_to_send_priority.get()
+                except queue.Empty:
+                    try:
+                        command = self._command_to_send.get()
+                    except queue.Empty:
+                        continue
+                try:
                     if command == "start":
                         self._state = PrinterState.PRINTING
                         continue
@@ -397,14 +404,12 @@ class Printer(object):
                     print(f"Poslaný příkaz {command_to_send}")
                     logging.debug(f"Message send: {command_to_send}")
                     n_line += 1
-                except queue.Empty:
-                    continue
+
                 except Exception as ex:
                     fire_event("Serial_ERROR", ex)
                     print(f"Naskytla se chyba {ex}")
                     self.disconnect()
-                finally:
-                    self._command_to_send.task_done()
+
                 self.event.wait()
 
     @property
@@ -425,16 +430,16 @@ class Printer(object):
 
     def _set_autoreport_temp(self, interval: int = 4):
         command = f"M155 S{interval}"
-        self._command_to_send.put(command)
+        self.put_command(command)
         self._autoreport_temp = True
 
     def _set_autoreport_position(self, interval: int = 1):
         command = f"M154 S{interval}"
-        self._command_to_send.put(command)
+        self.put_command(command)
         self._autoreport_position = True
 
     def put_command(self, command: str):
-        self._command_to_send.put(command)
+        self._command_to_send_priority.put(command)
 
     def is_connect(self):
         return self._comm.isOpen()
@@ -467,7 +472,7 @@ class Printer(object):
         self._state = PrinterState.REMOVAL
         self.add_script_to_queue("removal", "removed")
 
-    def add_script_to_queue(self, name: str, indicator: str = None, empty_script: bool = False):
+    def add_script_to_queue(self, name: str, indicator: str = None, empty_script: bool = False, priority: bool = False):
         self._is_loading = True
         script = self.scripts.get_script(name)
         if script == "":
@@ -477,9 +482,15 @@ class Printer(object):
             f_line = line.strip()  # vymazání zbytečných mezer
             f_line = decommenter(f_line)
             if f_line.isspace() is False and len(f_line) > 0:
-                self._command_to_send.put(f_line)
+                if priority is False:
+                    self._command_to_send.put(f_line)
+                else:
+                    self._command_to_send_priority.put(f_line)
         if indicator is not None:
-            self._command_to_send.put(indicator)
+            if priority is False:
+                self._command_to_send.put(indicator)
+            else:
+                self._command_to_send_priority.put(indicator)
         self._is_loading = False
 
 

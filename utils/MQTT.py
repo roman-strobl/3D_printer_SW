@@ -26,7 +26,7 @@ class MQTT(object):
         self.IP_address = self.settings.setting["MQTT"]["IP_address"]
         self.port = self.settings.setting["MQTT"]["port"]
         self.printer_name = self.settings.setting["MQTT"]["name"]
-        self.client = paho.Client("printer")
+        self.client = paho.Client()
         self.client.on_connect = on_connect
         self.client.on_disconnect = on_disconnect
         self.auto_connect = self.settings.setting["MQTT"]["auto_connect"]

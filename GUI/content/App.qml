@@ -174,7 +174,7 @@ Window {
         property bool bed_status: true
         property bool chamber_status: false
 
-        property var extruder_max_temperature: 0
+        property double extruder_max_temperature: 0
         property double bed_max_temperature: 0
         property double chamber_max_temperature:0
 

@@ -2,6 +2,7 @@ import time
 import os
 import requests
 import threading
+import urllib.parse
 
 from requests import HTTPError
 
@@ -62,8 +63,10 @@ class StateMachine(object):
         print("Idle_state")
 
         if self._status:
+            time.sleep(5)
             if self._comm_status:
                 self._state = States.REQUEST
+                self._next_status.clear()
                 return
 
         self._next_status.wait()
@@ -71,11 +74,10 @@ class StateMachine(object):
 
     def Request_state(self):
         print("Request_state")
-        file = self._getFileFromQueue("http://192.168.0.116:5000/printer/queue")
+        file = self._getFileFromQueue(self._MES_url)
         if file == "":
             time.sleep(5)
             return
-
         fire_event("printer_start_print", file)
         print(f"Tisk souboru {file}")
         self._state = States.PRINTING
@@ -85,7 +87,7 @@ class StateMachine(object):
         self._next_status.wait()
         self._state = States.REMOVAL
         self._next_status.clear()
-        requests.post("http://192.168.0.116:5000/printer/queue",
+        requests.post(self._MES_url,
                       json={"id": self._job_id, "status": "done", "printer": self.printer_name})
 
         if os.path.exists("job.gcode"):
@@ -108,14 +110,18 @@ class StateMachine(object):
     def _getFileFromQueue(self, url: str):
         first_response = self._getJsonFromUrl(url)
         self._job_id = first_response.get("id")
+
         if first_response == {}:
             return ""
         if first_response.get("url") is None:
             return ""
         if first_response.get("id") is None:
             return ""
+
         file_url = first_response.get("url")
+
         job_id = first_response.get("id")
+
         if file_url == "":
             return ""
         if job_id == 0:
@@ -123,7 +129,11 @@ class StateMachine(object):
 
         print(f"File url: {file_url}")
 
-        file_url = self._MES_url + file_url
+        if "localhost" in file_url:
+            parsed_url = urllib.parse.urlparse(self._MES_url)
+            file_url = file_url.lstrip("localhost")
+            file_url = parsed_url.scheme + "://" + parsed_url.netloc + file_url
+
         print(f"File url: {file_url}")
         try:
             r = requests.get(file_url)
@@ -169,6 +179,7 @@ class StateMachine(object):
             return {}
         else:
             print('Success!')
+            print(r.url)
 
         try:
             response = r.json()
@@ -192,13 +203,6 @@ class StateMachine(object):
             self._comm_status = False
 
 
-if __name__ == "__main__":
-    def hello(path:str):
-        print(f"Budu tisknout soubor {path}")
-
-    subscribe("printer_start_print", hello)
-    URL = "http://127.0.0.1:5000/printer/queue"
-    Machinka = StateMachine()
 
 
 
