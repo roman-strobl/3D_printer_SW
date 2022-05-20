@@ -137,6 +137,7 @@ class Printer(object):
         except Exception as ex:
             fire_event("Serial_ERROR", ex)
             print(ex)
+            return
         self._start_threads()
         time.sleep(2)
         self.put_command("M110")
@@ -372,15 +373,16 @@ class Printer(object):
     def _sender(self):
         n_line = 1
         while self._sending_active:
-            if not self._pause and \
-                    self._sending_active and \
-                    not self._is_loading:
+            if self._sending_active and not self._is_loading:
                 try:
                     command = self._command_to_send_priority.get()
                 except queue.Empty:
-                    try:
-                        command = self._command_to_send.get()
-                    except queue.Empty:
+                    if not self._pause:
+                        try:
+                            command = self._command_to_send.get()
+                        except queue.Empty:
+                            continue
+                    else:
                         continue
                 try:
                     if command == "start":
