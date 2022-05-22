@@ -42,6 +42,7 @@ class MainWindow(QObject):
     getScriptText = Signal(str)
 
     # Signáli pro získání nastavení mqtt
+    getMQTT_name = Signal(str)
     getMQTTIP = Signal(str)
     getMQTTPort = Signal(int)
     getMQTT_status = Signal(bool)
@@ -50,6 +51,11 @@ class MainWindow(QObject):
     # Signáli pro získání nastavení MES
     getMESIP = Signal(str)
     getMESPort = Signal(int)
+
+    # Signáli pro zíkání nastavení automatického systému
+
+    getSystem_status = Signal(bool)
+    getRemoval_status = Signal(bool)
 
     getRemovalDialog = Signal(bool)
 
@@ -86,9 +92,17 @@ class MainWindow(QObject):
         self.updatePort()
         self.getBaudrates.emit(self.settings.setting["GUI"]["baudrates"])
 
+        self.getMQTT_name.emit(self.settings.setting["MQTT"]["name"])
         self.getMQTTIP.emit(self.settings.setting["MQTT"]["IP_address"])
         self.getMQTTPort.emit(self.settings.setting["MQTT"]["port"])
         self.getMQTT_auto_connect.emit(self.settings.setting["MQTT"]["auto_connect"])
+
+        self.getSystem_status.emit(self.settings.setting["system"]["status"])
+
+        if self.settings.setting["system"]["removal"] == "manual":
+            self.getRemoval_status.emit(False)
+        elif self.settings.setting["system"]["removal"] == "auto":
+            self.getRemoval_status.emit(True)
 
         self.getExtruderMaxTemperature.emit(self.settings.setting["printer"]["extruder"]["max_temp"])
         self.getBedMaxTemperature.emit(self.settings.setting["printer"]["bed"]["max_temp"])
@@ -318,4 +332,4 @@ class MainWindow(QObject):
     @Slot(str)
     def printer_send_command(self, command: str):
         print(f"command: {command}")
-        #todo: dodělat
+        fire_event("printer_command", command)

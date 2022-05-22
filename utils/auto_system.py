@@ -191,8 +191,19 @@ class StateMachine(object):
         if status == "done":
             self._next_status.set()
 
-        if status == "removed":
+        elif status == "removed":
             self._next_status.set()
+
+        elif status == "start":
+            pass
+        elif status == "stop":
+            pass
+
+        elif status == "manual":
+            pass
+        elif status == "auto":
+            pass
+
 
     def _printer_status(self, stat: str):
         if stat == "CONNECTED":

@@ -167,7 +167,7 @@ Window {
 
         property bool printer_status: false
 
-        property string printer_name: ""
+
 
         property int num_of_extruders: 1
 
@@ -200,17 +200,20 @@ Window {
         property bool motor_state: false
 
         //-------------MQTT_modul-----------------------
-
+        property string mqtt_printer_name: ""
         property string mqtt_ip: ""
         property int mqtt_port: 0
         property bool mqtt_status: false
         property bool mqtt_auto_connect: false
 
+        //---------------MES-modul-------------------
         property string mes_url: ""
+
 
         property var script_list: []
         property string script_text: ""
 
+        //---------------Automatic-system-modul-------------------
         property bool automatic_system_status: false
         property bool automatic_removal_status: false
 
@@ -293,8 +296,23 @@ Window {
         function onGetMQTT_auto_connect(mqtt_auto_connect){
             back.mqtt_auto_connect = mqtt_auto_connect
         }
+        function onGetMQTT_name(mqtt_name){
+            back.mqtt_printer_name = mqtt_name
+        }
 
+        //---------------MES-modul-------------------
+        function onGetMES_URL(mes_url){
+            back.mes_url = mes_url
+        }
 
+        //---------------Automat-system-modul-------------------
+
+        function onGetSystem_status(system_status){
+            back.automatic_system_status = system_status
+        }
+        function onGetRemoval_status(removal_status){
+            back.automatic_removal_status = removal_status
+        }
 
         function onGetRemovalDialog(dialog_visibility){
             removalDialog.open()

@@ -515,10 +515,11 @@ Item {
                 width: 139
                 height: 42
                 hoverEnabled: true
-                text: back.printer_name
+                enabled: !back.mqtt_status
+                text: back.mqtt_printer_name
                 onEditingFinished:{
-                    back.printer_name = printer_name_textfield.text
-                    backend.printer_change_name(back.printer_name)
+                    back.mqtt_printer_name = printer_name_textfield.text
+                    backend.printer_change_name(back.mqtt_printer_name)
                 }
             }
 
