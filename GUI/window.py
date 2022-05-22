@@ -52,6 +52,7 @@ class MainWindow(QObject):
     getMESIP = Signal(str)
     getMESPort = Signal(int)
 
+    getMES_URL = Signal(str)
     # Signáli pro zíkání nastavení automatického systému
 
     getSystem_status = Signal(bool)
@@ -97,6 +98,8 @@ class MainWindow(QObject):
         self.getMQTTPort.emit(self.settings.setting["MQTT"]["port"])
         self.getMQTT_auto_connect.emit(self.settings.setting["MQTT"]["auto_connect"])
 
+        self.getMES_URL.emit(self.settings.setting["MES"]["url"])
+
         self.getSystem_status.emit(self.settings.setting["system"]["status"])
 
         if self.settings.setting["system"]["removal"] == "manual":
@@ -130,7 +133,6 @@ class MainWindow(QObject):
             self.oldPort = f_ports
 
     def update_temperature(self, data):
-        #todo: při posílání teploty extruderu rozdělit cílovou a reálnou
         self.getExtruderTemperature.emit(data["tools"][0])
         self.getBedTemperature.emit(data["bed"][0])
         self.getChamberTemperature.emit(data["chamber"][0])
@@ -285,17 +287,24 @@ class MainWindow(QObject):
     @Slot(str)
     def mes_change_url(self, url: str):
         print(f"MES URL: {url}")
-        #todo: dodělat
+        fire_event("MES_url", url)
 
     @Slot(bool)
     def automatic_system_change_status(self, state: bool):
         print(f"automatic_system_change_status: {state}")
-        # todo: dodělat
+        if state is True:
+            fire_event("system_state", "start")
+        else:
+            fire_event("system_state", "stop")
 
     @Slot(bool)
     def automatic_removal_change_status(self, state: bool):
         print(f"automatic_removal_change_status: {state}")
-        #todo: dodělat
+        if state is True:
+            fire_event("system_state", "auto")
+        else:
+            fire_event("system_state", "manual")
+
 
     @Slot(str)
     def print(self, file_url: str):
@@ -312,22 +321,30 @@ class MainWindow(QObject):
     def RemovalDialog(self):
         self.getRemovalDialog.emit(True)
 
-#todo: přidat posílání do fronty
-
     @Slot(int)
     def fan_rate_change(self, value):
         print(f"fan_rate: {value}")
-        #todo: dodělat
+        if value > 255:
+            print("FAN: spatna hodnota")
+        elif value <= 255 and value > 0:
+            fire_event("printer_command", f"M106 P0 S{int(255/100*value)}")
+        elif value == 0 or value == -1:
+            fire_event("printer_command", f"M107 P0")
+        else:
+            print("FAN: spatna hodnota")
 
     @Slot(int)
     def flow_rate_change(self, value):
         print(f"flow_rate: {value}")
-        # todo: dodělat
+        fire_event("printer_command", f"M221 S{value}")
 
     @Slot(bool)
     def motor_state_change(self, state):
         print(f"motor_state: {state}")
-        # todo: dodělat
+        if state is True:
+            fire_event("printer_command", "M17")
+        else:
+            fire_event("printer_command", "M18")
 
     @Slot(str)
     def printer_send_command(self, command: str):

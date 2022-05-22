@@ -194,10 +194,10 @@ Window {
         property int temp_interval: 4
         property int position_interval: 1
 
-        property bool fan_state: false
+        property bool fan_state: true
         property int fan_rate: 100
         property int flow_rate: 100
-        property bool motor_state: false
+        property bool motor_state: true
 
         //-------------MQTT_modul-----------------------
         property string mqtt_printer_name: ""

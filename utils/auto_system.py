@@ -38,6 +38,7 @@ class StateMachine(object):
         self._job_id = 0
 
         subscribe("system_state", self.event_handler)
+        subscribe("MES_url", self._change_mes_url)
         subscribe("printer_connection", self._printer_status)
         subscribe("MQTT_settings", self._change_printer_name)
 
@@ -73,6 +74,10 @@ class StateMachine(object):
         self._next_status.clear()
 
     def Request_state(self):
+        if not self._status:
+            print("vypnuti systemu")
+            self._state = States.IDLE
+            return
         print("Request_state")
         file = self._getFileFromQueue(self._MES_url)
         if file == "":
@@ -195,15 +200,26 @@ class StateMachine(object):
             self._next_status.set()
 
         elif status == "start":
-            pass
+            self._status = True
+            if self._state == States.IDLE:
+                self._next_status.set()
+            self.settings.setting["system"]["status"] = self._status
+            self.settings.update()
+
         elif status == "stop":
-            pass
+            self._status = False
+            self.settings.setting["system"]["status"] = self._status
+            self.settings.update()
 
         elif status == "manual":
-            pass
-        elif status == "auto":
-            pass
+            self._removal_mode = "manual"
+            self.settings.setting["system"]["removal"] = self._removal_mode
+            self.settings.update()
 
+        elif status == "auto":
+            self._removal_mode = "auto"
+            self.settings.setting["system"]["removal"] = self._removal_mode
+            self.settings.update()
 
     def _printer_status(self, stat: str):
         if stat == "CONNECTED":
@@ -213,6 +229,10 @@ class StateMachine(object):
         elif stat == "DISCONNECTED":
             self._comm_status = False
 
+    def _change_mes_url(self, url):
+        self._MES_url = url
+        self.settings.setting["MES"]["url"] = self._MES_url
+        self.settings.update()
 
 
 

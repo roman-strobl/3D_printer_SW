@@ -337,6 +337,9 @@ Item {
                 if (back.fan_state){
                     backend.fan_rate_change(back.fan_rate)
                 }
+                else{
+                    backend.fan_rate_change(-1)
+                }
             }
         }
 

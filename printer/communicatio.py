@@ -262,7 +262,7 @@ class Printer(object):
                 time.sleep(0.001)
                 continue
             logging.debug(f"Message arrived: {message}")
-            #print(message)
+            print(message)
             if self._M115_state:
                 if not message.startswith("Cap") and not message.startswith("cap"):
                     self._M115_state = False
