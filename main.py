@@ -18,7 +18,7 @@ from utils.auto_system import StateMachine
 import utils.script
 
 if __name__ == "__main__":
-    logging.basicConfig(filename='debug.log', encoding='utf-8', level=logging.DEBUG)
+    logging.basicConfig(filename='debug.log', encoding='utf-8', level=logging.ERROR)
     QQuickStyle.setStyle("Material")
     app = QGuiApplication(sys.argv)
     engine = QQmlApplicationEngine()
