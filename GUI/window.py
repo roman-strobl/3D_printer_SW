@@ -6,7 +6,8 @@ from utils.settings import GetSettingsManager
 from utils.script import GetScriptsManager
 
 class MainWindow(QObject):
-    # Signáli pro získání nastavení tiskárny
+    """Třída pro kontrolu GUI. Jedná se o objekt, který pomocí objektu Signal(typ)
+     komunikuje s front-endem GUI aplikace."""
     getPorts = Signal(list)
     getBaudrates = Signal(list)
 
@@ -34,6 +35,8 @@ class MainWindow(QObject):
     getPositions = Signal(list)
 
     getPrinterStatus = Signal(bool)
+    getPrinterPrinting = Signal(bool)
+    getPrinterPause = Signal(bool)
 
     getPrinter_temp_interval = Signal(int)
     getPrinter_position_interval = Signal(int)
@@ -59,6 +62,7 @@ class MainWindow(QObject):
     getRemoval_status = Signal(bool)
 
     getRemovalDialog = Signal(bool)
+    getWarningDialog = Signal(str)
 
     extruder_target_temperature: list = [0]
     bed_target_temperature: float = 0
@@ -79,6 +83,8 @@ class MainWindow(QObject):
         subscribe("printer_connection", self.update_printer_status)
         subscribe("MQTT_connection_status", self.mqtt_connection_state)
         subscribe("GUI_removal_dialog", self.RemovalDialog)
+        subscribe("printer_state", self.update_printer_state)
+        subscribe("Serial_ERROR", self.WarningDialog)
 
     @Slot()
     def Debug(self):
@@ -133,6 +139,7 @@ class MainWindow(QObject):
             self.oldPort = f_ports
 
     def update_temperature(self, data):
+        """Metoda pro updatování teploty v GUI, pokud příjde nová teplota"""
         self.getExtruderTemperature.emit(data["tools"][0])
         self.getBedTemperature.emit(data["bed"][0])
         self.getChamberTemperature.emit(data["chamber"][0])
@@ -148,6 +155,7 @@ class MainWindow(QObject):
             self.getChamberTargetTemperature.emit(self.chamber_target_temperature)
 
     def update_position(self, data):
+        """Metoda pro updatování pozive v GUI, pokud příjde nová pozice"""
         try:
             position_list = [data["X"], data["Y"], data["Z"]]
             self.getPositions.emit(position_list)
@@ -160,6 +168,18 @@ class MainWindow(QObject):
                    "range": range
                    }
         fire_event("printer_command_axis", command)
+
+    @Slot(bool)
+    def print_pause(self, state: bool):
+        if state is True:
+            fire_event("printer_printing_handle", "pause")
+        else:
+            fire_event("printer_printing_handle", "unpause")
+
+    @Slot()
+    def print_kill(self):
+        fire_event("printer_printing_handle", "stop")
+
 
     @Slot(str)
     def getScript(self, name):
@@ -197,11 +217,35 @@ class MainWindow(QObject):
     def update_printer_status(self, status: str):
         if status == "CONNECTED":
             self.getPrinterStatus.emit(True)
+            self.getPrinterPrinting.emit(False)
+            self.getPrinterPause.emit(False)
         elif status == "DISCONNECTED":
             self.getPrinterStatus.emit(False)
         else:
             print("Neznamý stav")
+
+    """    
+    IDLE = "idle"
+    PRINTING = "printing"
+    REMOVAL = "removal"
+    PAUSE = "pause"
+    """
+
+    def update_printer_state(self, status: str):
+        if status == "idle":
+            self.getPrinterPrinting.emit(False)
+            self.getPrinterPause.emit(False)
+        elif status == "printing":
+            self.getPrinterPrinting.emit(True)
+            self.getPrinterPause.emit(False)
+        elif status == "pause":
+            self.getPrinterPause.emit(True)
+        elif status == "removal":
+            self.getPrinterPrinting.emit(False)
+            self.getPrinterPause.emit(False)
+
     # komunikace GUI s nastavením tiskárny
+
 
     @Slot(str)
     def serial_change_port(self, port: str):
@@ -305,7 +349,6 @@ class MainWindow(QObject):
         else:
             fire_event("system_state", "manual")
 
-
     @Slot(str)
     def print(self, file_url: str):
         import platform
@@ -320,6 +363,9 @@ class MainWindow(QObject):
 
     def RemovalDialog(self):
         self.getRemovalDialog.emit(True)
+
+    def WarningDialog(self, warning):
+        self.getWarningDialog.emit(warning)
 
     @Slot(int)
     def fan_rate_change(self, value):
@@ -339,12 +385,8 @@ class MainWindow(QObject):
         fire_event("printer_command", f"M221 S{value}")
 
     @Slot(bool)
-    def motor_state_change(self, state):
-        print(f"motor_state: {state}")
-        if state is True:
-            fire_event("printer_command", "M17")
-        else:
-            fire_event("printer_command", "M18")
+    def motor_off(self, state):
+            fire_event("printer_command", "M84")
 
     @Slot(str)
     def printer_send_command(self, command: str):

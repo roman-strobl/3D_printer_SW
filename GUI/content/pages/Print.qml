@@ -60,6 +60,7 @@ Item {
                     width: 128
                     height: 68
                     text: qsTr("tisk")
+                    enabled: !back.printer_printing
                     font.pointSize: 15
                     onClicked: {
                         backend.print(fileurl_textfield.text)
@@ -67,37 +68,43 @@ Item {
                 }
 
                 Button {
-                    id: button2
+                    id: pause_button
                     x: 188
                     y: 639
-                    text: qsTr("Pause")
+                    text: (back.printer_pause ? "Unpause" : "Pause")
+                    enabled: back.printer_printing
                     font.pointSize: 15
+                    onClicked:
+                        if (!back.printer_pause){
+                            backend.print_pause(true)
+                        }
+                        else{
+                            backend.print_pause(false)
+                        }
+
                 }
 
                 Button {
-                    id: button3
+                    id: kill_button
                     x: 313
                     y: 639
                     text: qsTr("Kill print")
                     font.pointSize: 15
-                }
-
-                ProgressBar {
-                    id: progressBar
-                    x: 81
-                    y: 560
-                    width: 418
-                    height: 66
-                    value: 0.5
+                    enabled: back.printer_printing
+                    onClicked: {
+                        backend.print_kill()
+                    }
                 }
 
                 Label {
-                    id: label
-                    y: 540
-                    width: 99
-                    height: 40
-                    text: qsTr("Progress: ")
-                    anchors.horizontalCenter: parent.horizontalCenter
+                    id: printer_lab
+                    y: 427
+                    width: 161
+                    height: 41
+
+                    text: qsTr("Printer State: " + ((back.printer_printing) ? ((back.printer_pause) ? "Pause" : "Printing") : "Idle"))
+                    anchors.left: parent.left
+                    anchors.leftMargin: 81
                     font.pointSize: 15
                 }
             }
@@ -173,9 +180,10 @@ Item {
     }
 }
 
+
+
 /*##^##
 Designer {
-    D{i:0;autoSize:true;formeditorColor:"#808080";formeditorZoom:0.66;height:974;width:580}
-D{i:10}
+    D{i:0;autoSize:true;formeditorColor:"#808080";height:974;width:580}D{i:9}
 }
 ##^##*/

@@ -5,6 +5,7 @@ from utils.Event import subscribe, fire_event
 
 
 def on_disconnect(client, userdata, rc):
+    """Funkce, pro handlování odpojení klienta od serveru"""
     if rc != 0:
         print("Unexpected disconnection.")
     print("Disconnect")
@@ -12,6 +13,7 @@ def on_disconnect(client, userdata, rc):
 
 
 def on_connect(client, userdata, flags, rc):
+    """Funkce, pro handlování připojení klienta k serveru"""
     if rc == 0:
         print("MQTT připojeno")
         fire_event("MQTT_connection_status", True)

@@ -387,11 +387,10 @@ Item {
             id: motor_button
             x: 40
             y: 754
-            text: (back.motor_state)? qsTr("OFF") : qsTr("ON")
+            text: "OFF"
             font.pointSize: 15
             onClicked: {
-                back.motor_state = !back.motor_state
-                backend.motor_state_change(back.motor_state)
+                backend.motor_off()
             }
 
         }

@@ -109,7 +109,9 @@ class SettingType:
 
 
 class Settings(object):
-
+    """
+    Třída pro ukládání a načítání nastavení programu ze souboru
+    """
     setting = {}
 
     def __init__(self, basedir: str = None):
@@ -133,10 +135,19 @@ class Settings(object):
                     json.dump(self.setting, file, indent=4)
 
     def update(self):
+        """
+        Metoda pro aktualizaci nastavení v souboru
+        :return:
+        """
         with open("setting.json", "w") as file:
             json.dump(self.setting, file, indent=4)
 
     def updateSettingFromUrl(self, url: str) -> None:
+        """
+        Metoda pro stažení nastavení z URL adresy
+        :param url:
+        :return:
+        """
         new_setting = self._getJsonFromUrl(url)
 
         if new_setting == {}:

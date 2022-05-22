@@ -41,6 +41,7 @@ class StateMachine(object):
         subscribe("MES_url", self._change_mes_url)
         subscribe("printer_connection", self._printer_status)
         subscribe("MQTT_settings", self._change_printer_name)
+        subscribe("Serial_ERROR", self._serial_error)
 
     def _change_printer_name(self, data: dict):
         if data.get("name") is not None:
@@ -86,11 +87,15 @@ class StateMachine(object):
         fire_event("printer_start_print", file)
         print(f"Tisk souboru {file}")
         self._state = States.PRINTING
+        self._next_status.clear()
 
     def Printing_state(self):
         print("printing_state")
         self._next_status.wait()
-        self._state = States.REMOVAL
+        if self._state == States.PRINTING:
+            self._state = States.REMOVAL
+        elif self._state == States.IDLE:
+            return
         self._next_status.clear()
         requests.post(self._MES_url,
                       json={"id": self._job_id, "status": "done", "printer": self.printer_name})
@@ -220,6 +225,31 @@ class StateMachine(object):
             self._removal_mode = "auto"
             self.settings.setting["system"]["removal"] = self._removal_mode
             self.settings.update()
+
+        elif status == "stopped":
+            if self._state == States.PRINTING:
+                requests.post(self._MES_url,
+                              json={"id": self._job_id, "status": "failed", "printer": self.printer_name})
+                self._status = False
+                self._state = States.IDLE
+                if os.path.exists("job.gcode"):
+                    os.remove("job.gcode")
+                    print("The file has been deleted successfully")
+                else:
+                    print("The file does not exist!")
+
+    def _serial_error(self, error):
+        if self._state == States.PRINTING:
+            requests.post(self._MES_url,
+                          json={"id": self._job_id, "status": "failed", "printer": self.printer_name})
+            self._status = False
+            self._state = States.IDLE
+            if os.path.exists("job.gcode"):
+                os.remove("job.gcode")
+                print("The file has been deleted successfully")
+            else:
+                print("The file does not exist!")
+
 
     def _printer_status(self, stat: str):
         if stat == "CONNECTED":

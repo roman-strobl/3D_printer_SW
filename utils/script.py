@@ -26,7 +26,11 @@ class Scripts(object):
                     if ex.errno != errno.EEXIST:
                         print(ex)
 
-    def get_list_of_scripts(self) ->list:
+    def get_list_of_scripts(self) -> list:
+        """
+        Metoda pro získání listu možných skriptů
+        :return: [Scripty]
+        """
         script_list = []
         for name in self.script_list:
             fix = name.split(".")
@@ -34,6 +38,11 @@ class Scripts(object):
         return script_list
 
     def get_script(self, name: str) -> str:
+        """
+        Metoda pro získání G-kódu určitého skriptu
+        :param name: Jméno skriptu
+        :return:
+        """
         g_code = ""
         list_index = 10
         for index, file_name in enumerate(self.script_list):
@@ -55,6 +64,12 @@ class Scripts(object):
             return ""
 
     def update_script(self, name: str, g_code: str):
+        """
+        Metoda pro aktualizaci skriptu
+        :param name: jméno skriptu
+        :param g_code: řetězec znaků
+        :return:
+        """
         list_index = 10 # zde je vetší číslo, aby když program projede for cyklus a nenajde jméno souboru, tak jsem mohl zjistit chybu
         for index, file_name in enumerate(self.script_list):
             split = file_name.split(".") # zde rozdělím, ať hledám soubor bez koncovky

@@ -150,6 +150,12 @@ Window {
                 backend.RemovalDone()
             }
         }
+        MessageDialog {
+            id: warningDialog
+            icon: StandardIcon.Critical
+            title: "Error"
+            text: ""
+        }
 
     }
 
@@ -167,6 +173,8 @@ Window {
 
         property bool printer_status: false
 
+        property bool printer_printing: false
+        property bool printer_pause: false
 
 
         property int num_of_extruders: 1
@@ -197,7 +205,6 @@ Window {
         property bool fan_state: true
         property int fan_rate: 100
         property int flow_rate: 100
-        property bool motor_state: true
 
         //-------------MQTT_modul-----------------------
         property string mqtt_printer_name: ""
@@ -229,6 +236,12 @@ Window {
         }
         function onGetPrinterStatus(printer_status){
             back.printer_status = printer_status
+        }
+        function onGetPrinterPrinting(printer_printing){
+            back.printer_printing = printer_printing
+        }
+        function onGetPrinterPause(printer_pause){
+            back.printer_pause = printer_pause
         }
         function onGetPort(port){
             back.port = port
@@ -316,6 +329,10 @@ Window {
 
         function onGetRemovalDialog(dialog_visibility){
             removalDialog.open()
+        }
+        function onGetWarningDialog(error){
+            warningDialog.text = error
+            warningDialog.open()
         }
 
         function onGetScriptList(script_list){

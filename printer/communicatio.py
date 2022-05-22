@@ -46,7 +46,7 @@ class Printer(object):
         self.settings = GetSettingsManager()
         self.scripts = GetScriptsManager()
 
-        self._extruder_count = None
+        self._extruder_count = 1
 
         self._temp: list = [0]
         self._bedTemp: int = 0
@@ -69,6 +69,8 @@ class Printer(object):
         self._comm = None
 
         self._automatic_send_temp = False
+
+        self._printing = False
 
         self._position_X = 0.0
         self._position_Y = 0.0
@@ -112,11 +114,13 @@ class Printer(object):
         subscribe("serial_settings", self.serial_change)
         subscribe("printer_set_interval", self.report_interval)
         subscribe("printer_auto_removal", self.automatically_remove)
+        subscribe("printer_printing_handle", self.printing_handle)
 
         if self._auto_connect is True:
             self.connect()
 
     def _start_threads(self) -> None:
+        """Metoda pro zapnutí vláken pro monitoring a posílání"""
 
         self._sending_active = True
         self._monitoring_active = True
@@ -131,11 +135,12 @@ class Printer(object):
         self.sending_thread.start()
 
     def connect(self) -> None:
+        """Metoda pro otevření komunikace"""
         try:
             self._comm.open()
             time.sleep(1)
         except Exception as ex:
-            fire_event("Serial_ERROR", ex)
+            fire_event("Serial_ERROR", "Failed to open serial communication")
             print(ex)
             return
         self._start_threads()
@@ -145,7 +150,7 @@ class Printer(object):
         fire_event("printer_connection", "CONNECTED")
 
     def disconnect(self) -> str:
-
+        """Metoda pro uzavření komunikace"""
         self._sending_active = False
         self._monitoring_active = False
 
@@ -159,27 +164,44 @@ class Printer(object):
         fire_event("printer_connection", "DISCONNECTED")
         return "disconnect"
 
+    def printing_handle(self, command):
+        if command == "stop":
+            self.print_stop()
+        elif command == "pause":
+            self.print_pause()
+        elif command == "unpause":
+            self.print_unpause()
+
     def print_stop(self):
+        """Metoda pro vypnutí tisku"""
         self._command_to_send = queue.Queue()
         self._state = PrinterState.IDLE
+        self._command_to_send_priority.put("M204")
+        self._command_to_send_priority.put("M140 S0")
+        if self._extruder_count > 1:
+            for i in range(self._extruder_count-1):
+                self._command_to_send_priority.put(f"M104 T{i} S0")
+        else:
+            self._command_to_send_priority.put(f"M104 T S0")
         self.add_script_to_queue("on_stop", priority=True)
-        fire_event("system_state", "stop")
+        fire_event("printer_state", self._state)
+        fire_event("system_state", "stopped")
 
     def print_pause(self):
+        """Metoda na pozastavení tisku"""
         if self._state == PrinterState.PRINTING:
             self._pause = True
             self._state = PrinterState.PAUSE
             self.add_script_to_queue("on_pause", priority=True)
-            fire_event("system_state", "pause")
+            fire_event("printer_state", self._state)
 
     def print_unpause(self):
+        """Metoda pro obnovu tisku"""
         if self._state == PrinterState.PAUSE:
             self._pause = False
             self._state = PrinterState.PRINTING
-            fire_event("system_state", "unpause")
-
-    def print_resume(self):
-        raise NotImplementedError
+            self._command_to_send_priority.put("unpause")
+            fire_event("printer_state", self._state)
 
     def command_from_GUI(self, command):
         self.put_command(command)
@@ -234,13 +256,14 @@ class Printer(object):
             self.settings.update()
 
     def _reader(self):
+        """Metoda pro čtení řádku v bufferu tiskárny"""
         if self._comm is None:
             return None
 
         try:
             string = self._comm.readline()
         except Exception as ex:
-            fire_event("Serial_ERROR", ex)
+            fire_event("Serial_ERROR", "There is a problem with serial communication")
             print(f"Naskytla se chyba {ex}")
             self.disconnect()
 
@@ -251,7 +274,7 @@ class Printer(object):
         return string
 
     def _monitoring(self):
-
+        """Metoda pro čtení bufferu tiskárny"""
         while self._monitoring_active:
 
             message = self._reader()
@@ -264,6 +287,7 @@ class Printer(object):
             logging.debug(f"Message arrived: {message}")
             print(message)
             if self._M115_state:
+                #zpracovávání dat o firmwaru tiskárny
                 if not message.startswith("Cap") and not message.startswith("cap"):
                     self._M115_state = False
 
@@ -283,26 +307,28 @@ class Printer(object):
 
             #print(message)
             if message.startswith("resend:"):
+                # Toto zpracování není nutné, protože komunikace funguje na principu ping-pong komunikace
                 continue
 
             if message.startswith("ok") or message.startswith(" ok"):
+                # Handlování odpovědi OK z tiskárny
                 self.event.set()
                 if not ("X:" in message or " Y:" in message or " Z:" in message or " E:" in message) and not (
                         " T:" in message or " T0:" in message or " B:" in message or " C:" in message):
                     continue
 
             if message.startswith("X:") or " Y:" in message or " Z:" in message or " E:" in message:
+                # zpracování pozice tiskárny
                 string = message.split("Count")
                 data = {}
                 for match in re.finditer(regex_position, string[0]):
 
                     data[match["axis"]] = match["value"]
-                #self.client.publish("printer/position", str(data))
                 fire_event("position_update", data)
                 continue
 
             if " T:" in message or " T0:" in message or " B:" in message or " C:" in message:
-                #print(message)
+                # zpracování teploty tiskárny
                 result = {}
 
                 for match in re.finditer(regex_temp, message):
@@ -371,32 +397,49 @@ class Printer(object):
         return
 
     def _sender(self):
+        #Metoda pro posílání příkazů
         n_line = 1
         while self._sending_active:
             if self._sending_active and not self._is_loading:
                 try:
-                    command = self._command_to_send_priority.get()
+                    # Neprve získání příkazu z prioritní fronty
+                    command = self._command_to_send_priority.get(block=(self._state != PrinterState.PRINTING))
                 except queue.Empty:
                     if not self._pause:
                         try:
-                            command = self._command_to_send.get()
+                            # získání příkazu z neprioritní fronty, který slouži pro uložení G-kódu pro tisk
+                            command = self._command_to_send.get(block=False)
                         except queue.Empty:
+                            time.sleep(0.01)
                             continue
                     else:
-                        continue
-                try:
-                    if command == "start":
-                        self._state = PrinterState.PRINTING
+                        time.sleep(0.01)
                         continue
 
+                try:
+                    #zaznamenání startu tisku
+                    if command == "start":
+                        self._state = PrinterState.PRINTING
+                        print("Startujeme")
+                        fire_event("printer_state", self._state)
+                        continue
+
+                    # zaznamenání konce tisku
                     if command == "done":
                         self._state = PrinterState.IDLE
                         fire_event("system_state", "done")
+                        fire_event("printer_state", self._state)
                         continue
 
+                    # zaznamenání konce pauzi, je zde kvůli tomu, aby se tisk rozjel.
+                    if command == "unpause":
+                        continue
+
+                    # zaznamenání automatického odstranění objektu z tiskové plochy
                     if command == "removed":
                         self._state = PrinterState.IDLE
                         fire_event("system_state", "removed")
+                        fire_event("printer_state", self._state)
                         continue
 
                     command_to_send = G_Command_with_line(command, n_line)
@@ -408,7 +451,7 @@ class Printer(object):
                     n_line += 1
 
                 except Exception as ex:
-                    fire_event("Serial_ERROR", ex)
+                    fire_event("Serial_ERROR", "There is a problem with serial communication")
                     print(f"Naskytla se chyba {ex}")
                     self.disconnect()
 
@@ -447,6 +490,7 @@ class Printer(object):
         return self._comm.isOpen()
 
     def print_from_file_buffered(self, file: str):
+        #metoda pro tisk ze souboru.
         self._is_loading = True
         try:
             f = open(file)
@@ -456,7 +500,7 @@ class Printer(object):
             self._is_loading = False
             return
 
-        self._command_to_send.put("start")
+        self._command_to_send_priority.put("start")
         self.add_script_to_queue("start", empty_script=True)
         for line in f:
             f_line = line.strip()  # vymazání zbytečných mezer
@@ -469,6 +513,7 @@ class Printer(object):
         self.add_script_to_queue("end", empty_script=True)
         self._command_to_send.put("done")
         self._is_loading = False
+        print("G-kod nacten")
 
     def automatically_remove(self):
         self._state = PrinterState.REMOVAL
