@@ -1,6 +1,6 @@
 # 3D_printer_SW
 EN:
-This project is Bachelor thesis, where i was trying programming control system for 3D printing farm.
+This project is Bachelor thesis, where i am programming control system for 3D printing farm.
 
 To turn on the control system, you need to create a virtual environment inside the folder using the command:
 
@@ -35,6 +35,7 @@ Then at the URL address 127.0.0.1/
 you will find the G-code upload page.
 
 CZ:
+Tento projekt je součástí bakalářské práce, který se zabývá naprogramováním řídicího systému pro 3D tiskárenskou farmu.
 Pro zapnutí řídicího systému je potřeba si vytvořit virtuální prostředí uvnitř složky pomocí příkazu:
 
 python3 -m venv venv
